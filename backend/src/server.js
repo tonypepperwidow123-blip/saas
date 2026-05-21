@@ -12,19 +12,25 @@ import wpRoutes from './routes/wp.routes.js';
 
 const app = express();
 
-// CORS - Allow all localhost ports for development
+// CORS - Allow all localhost ports for development and production Vercel apps
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
 
     // Allow all localhost ports
-    if (origin.includes('localhost')) {
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
       return callback(null, true);
     }
 
-    // Allow specific origin in production
-    if (origin === process.env.CLIENT_URL) {
+    // Allow specific origin in production, including Vercel preview/production links
+    const cleanClientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, '') : null;
+    const cleanOrigin = origin.replace(/\/$/, '');
+
+    if (
+      (cleanClientUrl && cleanOrigin === cleanClientUrl) ||
+      origin.endsWith('.vercel.app')
+    ) {
       return callback(null, true);
     }
 
@@ -36,6 +42,9 @@ app.use(cors({
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Trust proxy for hosted providers (Render, Railway, etc.)
+app.set('trust proxy', 1);
 
 // Global rate limit
 app.use(rateLimit({
