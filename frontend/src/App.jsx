@@ -1,3 +1,4 @@
+// Trigger automatic Vercel redeployment with correct environment variables
 import { useEffect, useRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
