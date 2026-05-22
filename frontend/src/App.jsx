@@ -1,22 +1,24 @@
-// fix: robust OAuth callback handling - no false logouts
+// Google OAuth + email/password session handler — clean PKCE flow
 import { useEffect, useRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { Toaster } from 'sonner';
+import { Toaster } from 'sonner'  ;
 import { router } from './router';
 import { authService } from './services/auth.service';
 import { useAuthStore } from './store/auth.store';
 import { supabase } from './lib/supabase';
 
-// Helper: which dashboard to go to based on role
+// ─── helpers ────────────────────────────────────────────────────────────────
+
 const getDashboardPath = (role) => {
   if (role === 'admin') return '/admin/dashboard';
   if (role === 'developer') return '/developer/dashboard';
   return '/customer/dashboard';
 };
 
-// Helper: are we on an auth/public page that should be redirected away from?
-const shouldRedirect = (path) =>
+const isAuthPage = (path) =>
   path === '/' || path === '/login' || path === '/register';
+
+// ─── app ────────────────────────────────────────────────────────────────────
 
 function App() {
   const initRef = useRef(false);
@@ -25,80 +27,82 @@ function App() {
     if (initRef.current) return;
     initRef.current = true;
 
+    /**
+     * syncSession
+     * -----------
+     * Given a valid Supabase access_token, call our backend /auth/me to
+     * fetch the profile (and auto-create it if it was a first Google login).
+     * Sets Zustand state and redirects to the correct dashboard.
+     *
+     * IMPORTANT: We do NOT call supabase.auth.signOut() on failure here.
+     * Calling signOut() would kill the session we just received and create
+     * a redirect loop. We only clear the Zustand store.
+     */
     const syncSession = async (accessToken) => {
-      // Temporarily store the token so api.js sends it in the Authorization header
+      // Put the token in Zustand so api.js attaches it to Authorization header
       useAuthStore.getState().setAuth(null, accessToken);
+
       try {
         const response = await authService.me();
-        if (response.success && response.data?.user) {
+
+        if (response?.success && response.data?.user) {
           const user = response.data.user;
           useAuthStore.getState().setAuth(user, accessToken);
-          if (shouldRedirect(window.location.pathname)) {
+
+          // Only redirect away from public/auth pages
+          if (isAuthPage(window.location.pathname)) {
             window.location.replace(getDashboardPath(user.role));
           }
           return true;
         }
       } catch (err) {
-        console.error('syncSession: /auth/me failed:', err);
+        console.error('[PluginVault] syncSession /auth/me error:', err?.response?.data || err.message);
       }
-      // If /auth/me failed, clear the temp token but do NOT signOut
-      // (signOut kills the Supabase session and causes a redirect loop)
+
+      // /auth/me failed — clear temp token but leave Supabase session intact
       useAuthStore.getState().logout();
       return false;
     };
 
-    const checkSession = async () => {
-      try {
-        // Step 1: Try to get any active Supabase session (covers Google OAuth hash redirect)
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (session?.access_token) {
+    /**
+     * onAuthStateChange listener
+     * --------------------------
+     * With PKCE flow, Supabase automatically exchanges the ?code= param
+     * and fires SIGNED_IN once the exchange is complete. This is the main
+     * entry point for Google OAuth logins.
+     *
+     * We also handle INITIAL_SESSION here to restore email/password sessions
+     * that were persisted in localStorage from a previous login.
+     */
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.access_token) {
           const currentToken = useAuthStore.getState().token;
-          // Only sync if this is a new/different token
+          // Avoid duplicate syncs when the token hasn't changed
           if (currentToken !== session.access_token) {
-            const ok = await syncSession(session.access_token);
-            if (ok) return; // Successfully authenticated, stop here
-          } else if (useAuthStore.getState().user) {
-            // Already authenticated with same token, nothing to do
-            return;
+            await syncSession(session.access_token);
           }
-        }
-      } catch (err) {
-        console.error('checkSession: getSession failed:', err);
-      }
 
-      // Step 2: Fallback — validate existing persisted token (from email/password login)
-      const storedToken = useAuthStore.getState().token;
-      if (storedToken && !useAuthStore.getState().user) {
-        try {
-          const response = await authService.me();
-          if (response.success && response.data?.user) {
-            useAuthStore.getState().setAuth(response.data.user, storedToken);
-          } else {
-            useAuthStore.getState().logout();
+        } else if (event === 'INITIAL_SESSION' && session?.access_token) {
+          // Restoring a persisted session (e.g. page refresh after email login)
+          const alreadyLoaded = !!useAuthStore.getState().user;
+          if (!alreadyLoaded) {
+            await syncSession(session.access_token);
           }
-        } catch (err) {
-          // 401 here means the stored token truly expired
+
+        } else if (event === 'TOKEN_REFRESHED' && session?.access_token) {
+          // Supabase refreshed the JWT silently — update the stored token
+          // so the next api.js request uses the new one, but don't re-fetch /me
+          const state = useAuthStore.getState();
+          if (state.user) {
+            state.setAuth(state.user, session.access_token);
+          }
+
+        } else if (event === 'SIGNED_OUT') {
           useAuthStore.getState().logout();
         }
       }
-    };
-
-    checkSession();
-
-    // Listen for Supabase auth state changes (fires after Google OAuth redirect resolves)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.access_token) {
-        const currentToken = useAuthStore.getState().token;
-        if (currentToken !== session.access_token) {
-          await syncSession(session.access_token);
-        }
-      } else if (event === 'SIGNED_OUT') {
-        useAuthStore.getState().logout();
-      }
-      // Ignore TOKEN_REFRESHED — supabase manages tokens internally;
-      // our backend uses the Supabase JWT directly so no extra work needed
-    });
+    );
 
     return () => {
       subscription.unsubscribe();

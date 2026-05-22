@@ -61,13 +61,20 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          // Must be registered in Supabase → Authentication → Redirect URLs
+          // The PKCE code will be exchanged at this URL after Google redirects
+          redirectTo: window.location.origin,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
       if (error) throw error;
+      // Browser will navigate away to Google — no need to setLoading(false)
     } catch (err) {
       console.error('Google sign-in error:', err);
-      toast.error(err.message || 'Google sign-in failed');
+      toast.error(err.message || 'Google sign-in failed. Please try again.');
       setLoading(false);
     }
   };

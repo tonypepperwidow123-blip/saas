@@ -16,13 +16,18 @@ export default function Register() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: window.location.origin,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
       if (error) throw error;
+      // Browser navigates away to Google
     } catch (err) {
       console.error('Google sign-in error:', err);
-      toast.error(err.message || 'Google sign-in failed');
+      toast.error(err.message || 'Google sign-in failed. Please try again.');
       setLoading(false);
     }
   };
