@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { router } from './router';
 import { authService } from './services/auth.service';
 import { useAuthStore } from './store/auth.store';
+import { supabase } from './lib/supabase';
 
 function App() {
   const initRef = useRef(false);
@@ -27,6 +28,48 @@ function App() {
     };
 
     checkSession();
+
+    // Listen for Supabase auth state changes (e.g. Google OAuth redirect)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.access_token) {
+        const currentToken = useAuthStore.getState().token;
+        if (currentToken !== session.access_token) {
+          try {
+            // Set the token temporarily in Zustand store so authService.me() uses it
+            useAuthStore.getState().setAuth(null, session.access_token);
+            
+            const response = await authService.me();
+            if (response.success && response.data?.user) {
+              const user = response.data.user;
+              useAuthStore.getState().setAuth(user, session.access_token);
+              
+              // Redirect to corresponding dashboard
+              let redirectPath = '/customer/dashboard';
+              if (user.role === 'admin') redirectPath = '/admin/dashboard';
+              else if (user.role === 'developer') redirectPath = '/developer/dashboard';
+              
+              const currentPath = window.location.pathname;
+              if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
+                window.location.href = redirectPath;
+              }
+            } else {
+              useAuthStore.getState().logout();
+              await supabase.auth.signOut();
+            }
+          } catch (err) {
+            console.error('Error syncing Supabase OAuth session with backend:', err);
+            useAuthStore.getState().logout();
+            await supabase.auth.signOut();
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
+        useAuthStore.getState().logout();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (

@@ -1,4 +1,5 @@
 import api from './api';
+import { supabase } from '../lib/supabase';
 
 export const authService = {
   register: async (data) => {
@@ -12,6 +13,11 @@ export const authService = {
   },
 
   logout: async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('Supabase signout error:', err);
+    }
     const response = await api.post('/auth/logout');
     return response.data;
   },

@@ -154,20 +154,33 @@ export default function DashboardLayout() {
   const roleLabel = role === 'admin' ? 'Admin' : role === 'developer' ? 'Developer' : 'Customer';
 
   return (
-    <div className="flex min-h-screen bg-bg-base">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-bg-base overflow-x-hidden">
+      {/* Mobile Sidebar Backdrop Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden"
+          onClick={toggleSidebar}
+        />
+      )}
+
+      {/* Sidebar Navigation */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border-subtle bg-bg-surface transition-all duration-300 ${
-          sidebarOpen ? 'w-64' : 'w-20'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border-subtle bg-bg-surface transition-all duration-300 
+          ${sidebarOpen 
+            ? 'translate-x-0 w-64' 
+            : '-translate-x-full md:translate-x-0 md:w-20 w-64'
+          }`}
       >
-        {/* Logo */}
+        {/* Logo and toggle */}
         <div className="flex h-16 items-center justify-between border-b border-border-subtle px-4">
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent">
               <span className="text-sm font-bold text-white">PV</span>
             </div>
-            {sidebarOpen && <span className="text-lg font-semibold text-text-primary">PluginVault</span>}
+            {/* Show label if sidebar is open OR on mobile where sidebar is always w-64 when active */}
+            {(sidebarOpen || window.innerWidth < 768) && (
+              <span className="text-lg font-semibold text-text-primary">PluginVault</span>
+            )}
           </Link>
           <button
             onClick={toggleSidebar}
@@ -179,7 +192,7 @@ export default function DashboardLayout() {
           </button>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation items */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -187,6 +200,12 @@ export default function DashboardLayout() {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => {
+                  // Auto close sidebar on mobile navigation
+                  if (window.innerWidth < 768) {
+                    toggleSidebar();
+                  }
+                }}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
                     ? 'bg-accent text-white'
@@ -194,31 +213,31 @@ export default function DashboardLayout() {
                 }`}
               >
                 <span className="flex-shrink-0">{icons[item.icon]}</span>
-                {sidebarOpen && <span>{item.label}</span>}
+                {(sidebarOpen || window.innerWidth < 768) && <span>{item.label}</span>}
               </Link>
             );
           })}
         </nav>
 
-        {/* User */}
+        {/* User profile footer */}
         <div className="border-t border-border-subtle p-4">
-          <div className={`flex items-center ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
-            <div className={`flex items-center gap-3 ${!sidebarOpen && 'flex-col'}`}>
+          <div className={`flex items-center ${(sidebarOpen || window.innerWidth < 768) ? 'justify-between' : 'justify-center'}`}>
+            <div className={`flex items-center gap-3 ${!(sidebarOpen || window.innerWidth < 768) && 'flex-col'}`}>
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent">
                 <span className="text-sm font-medium text-white">{user?.name?.charAt(0)?.toUpperCase()}</span>
               </div>
-              {sidebarOpen && (
+              {(sidebarOpen || window.innerWidth < 768) && (
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-text-primary">{user?.name}</p>
                   <p className="text-xs text-text-muted">{roleLabel}</p>
                 </div>
               )}
             </div>
-            {sidebarOpen && (
+            {(sidebarOpen || window.innerWidth < 768) && (
               <button
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="rounded-lg p-2 text-text-secondary hover:bg-bg-elevated hover:text-danger"
+                className="rounded-lg p-2 text-text-secondary hover:bg-bg-elevated hover:text-danger animate-pulse"
                 title="Logout"
               >
                 {icons.logout}
@@ -228,13 +247,33 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
-        {/* Top bar */}
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border-subtle bg-bg-surface/95 px-6 backdrop-blur-sm">
-          <div>
-            <h1 className="text-lg font-semibold text-text-primary capitalize">{role} Portal</h1>
+      {/* Main Content Layout Container */}
+      <div 
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ml-0 
+          ${sidebarOpen 
+            ? 'md:ml-64' 
+            : 'md:ml-20'
+          }`}
+      >
+        {/* Top Header Navigation */}
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border-subtle bg-bg-surface/95 px-4 md:px-6 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            {/* Mobile Hamburger menu toggle */}
+            <button
+              onClick={toggleSidebar}
+              className="rounded-lg p-2 text-text-secondary hover:bg-bg-elevated hover:text-text-primary md:hidden"
+              aria-label="Toggle Sidebar"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
+            <h1 className="text-base md:text-lg font-semibold text-text-primary capitalize">
+              {role} Portal
+            </h1>
           </div>
+          
           <div className="flex items-center gap-4">
             <button className="rounded-lg p-2 text-text-secondary hover:bg-bg-elevated hover:text-text-primary">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -244,8 +283,8 @@ export default function DashboardLayout() {
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="p-6">
+        {/* Page Main Content Area */}
+        <main className="flex-1 p-4 md:p-6 max-w-full overflow-x-hidden">
           <Outlet />
         </main>
       </div>

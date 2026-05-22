@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PluginVault — Deployment Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e2a;
+      --border: #242836;
+      --primary: #6c63ff;
+      --primary-glow: rgba(108, 99, 255, 0.15);
+      --green: #22c55e;
+      --green-bg: rgba(34, 197, 94, 0.08);
+      --green-border: rgba(34, 197, 94, 0.25);
+      --yellow: #f59e0b;
+      --yellow-bg: rgba(245, 158, 11, 0.08);
+      --yellow-border: rgba(245, 158, 11, 0.25);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --red-border: rgba(239, 68, 68, 0.25);
+      --blue: #3b82f6;
+      --blue-bg: rgba(59, 130, 246, 0.08);
+      --blue-border: rgba(59, 130, 246, 0.25);
+      --purple-bg: rgba(108, 99, 255, 0.08);
+      --purple-border: rgba(108, 99, 255, 0.25);
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --code-bg: #0a0c10;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 240px;
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 28px 0;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .sidebar-logo span {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+
+    .sidebar-logo p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .nav-section {
+      padding: 6px 20px 2px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 20px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--text);
+      border-left-color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    .nav-link .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* ── Main ── */
+    .main {
+      margin-left: 240px;
+      padding: 48px 48px 80px;
+      max-width: 920px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      margin-bottom: 48px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--purple-bg);
+      border: 1px solid var(--purple-border);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 40%, var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .stack-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .pill {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* ── Sections ── */
+    .stage {
+      margin-bottom: 56px;
+      scroll-margin-top: 24px;
+    }
+
+    .stage-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stage-number {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--primary-glow);
+      border: 1px solid var(--purple-border);
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 24px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    p { margin-bottom: 12px; color: var(--muted); }
+
+    ol, ul {
+      padding-left: 20px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    li { margin-bottom: 6px; }
+    li strong { color: var(--text); }
+
+    /* ── Code Blocks ── */
+    .code-block {
+      position: relative;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin: 14px 0;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-lang {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .copy-btn:hover { color: var(--text); border-color: var(--primary); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); background: var(--green-bg); }
+
+    .copy-btn svg { width: 12px; height: 12px; }
+
+    pre {
+      padding: 18px 20px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c9d1d9;
+    }
+
+    /* ── Tip / Warning / Info boxes ── */
+    .box {
+      display: flex;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin: 16px 0;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+
+    .box-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .box-content { flex: 1; }
+    .box-content strong { display: block; margin-bottom: 3px; font-size: 13px; }
+
+    .box.tip    { background: var(--green-bg);  border: 1px solid var(--green-border);  color: #86efac; }
+    .box.warn   { background: var(--yellow-bg); border: 1px solid var(--yellow-border); color: #fcd34d; }
+    .box.danger { background: var(--red-bg);    border: 1px solid var(--red-border);    color: #fca5a5; }
+    .box.info   { background: var(--blue-bg);   border: 1px solid var(--blue-border);   color: #93c5fd; }
+    .box.purple { background: var(--purple-bg); border: 1px solid var(--purple-border); color: #c4b5fd; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: var(--surface2); }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #c9d1d9;
+    }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+    /* ── Checklist ── */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      font-size: 13.5px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .checklist li .check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+      color: var(--green);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── WP PHP box ── */
+    .wp-endpoint {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .method {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .method.get  { background: rgba(34,197,94,0.15);  color: var(--green); }
+    .method.post { background: rgba(59,130,246,0.15); color: var(--blue); }
+
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .endpoint-desc { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <span>⚡ PluginVault</span>
+    <p>Deployment Guide</p>
+  </div>
+
+  <div class="nav-section">Preparation</div>
+  <a href="#prereqs"  class="nav-link"><span class="dot"></span> Prerequisites</a>
+  <a href="#github"   class="nav-link"><span class="dot"></span> Push to GitHub</a>
+
+  <div class="nav-section">Database</div>
+  <a href="#supabase" class="nav-link"><span class="dot"></span> Supabase Setup</a>
+  <a href="#sql"      class="nav-link"><span class="dot"></span> Run Migrations</a>
+
+  <div class="nav-section">Backend</div>
+  <a href="#render"   class="nav-link"><span class="dot"></span> Deploy on Render</a>
+  <a href="#render-env" class="nav-link"><span class="dot"></span> Backend Env Vars</a>
+
+  <div class="nav-section">Frontend</div>
+  <a href="#vercel"   class="nav-link"><span class="dot"></span> Deploy on Vercel</a>
+  <a href="#vercel-env" class="nav-link"><span class="dot"></span> Frontend Env Vars</a>
+
+  <div class="nav-section">Connect</div>
+  <a href="#connect"  class="nav-link"><span class="dot"></span> Wire Up CORS</a>
+  <a href="#admin"    class="nav-link"><span class="dot"></span> Create Admin</a>
+
+  <div class="nav-section">WordPress</div>
+  <a href="#wp"       class="nav-link"><span class="dot"></span> WP Plugin API</a>
+  <a href="#wp-php"   class="nav-link"><span class="dot"></span> PHP Integration</a>
+
+  <div class="nav-section">Reference</div>
+  <a href="#checklist" class="nav-link"><span class="dot"></span> Final Checklist</a>
+  <a href="#fixes"    class="nav-link"><span class="dot"></span> Common Fixes</a>
+</nav>
+
+<!-- ── Main ── -->
+<main class="main">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">🚀 Production Deployment</div>
+    <h1>PluginVault Deployment Guide</h1>
+    <p>Follow every stage top-to-bottom. Every command, env block, and SQL query is ready to copy with one click.</p>
+    <div class="stack-pills">
+      <span class="pill">⚛️ React + Vite → Vercel</span>
+      <span class="pill">🟢 Express API → Render</span>
+      <span class="pill">🐘 Supabase (DB + Auth)</span>
+      <span class="pill">💳 Razorpay (Payments)</span>
+      <span class="pill">📧 Resend (Email)</span>
+      <span class="pill">🔌 WordPress Plugin API</span>
+    </div>
+  </div>
+
+
+  <!-- ── STAGE 0: Prerequisites ── -->
+  <section class="stage" id="prereqs">
+    <div class="stage-header">
+      <div class="stage-number">0</div>
+      <h2>Before You Start — Gather Your Keys</h2>
+    </div>
+
+    <div class="box info">
+      <span class="box-icon">ℹ️</span>
+      <div class="box-content">
+        <strong>What you need first</strong>
+        Have accounts on: GitHub, Supabase, Render, Vercel, Razorpay, and Resend (email). All have free tiers.
+      </div>
+    </div>
+
+    <h3>Supabase Keys</h3>
+    <p>Go to your Supabase project → <strong>Project Settings → API</strong> and copy these 3 values:</p>
+    <table>
+      <tr><th>What</th><th>Where to find it</th></tr>
+      <tr><td><code>Project URL</code></td><td>Settings → API → "Project URL"</td></tr>
+      <tr><td><code>anon / public key</code></td><td>Settings → API → "anon public" key</td></tr>
+      <tr><td><code>service_role key</code></td><td>Settings → API → "service_role" key — keep secret!</td></tr>
+    </table>
+
+    <h3>Generate a JWT Secret</h3>
+    <p>Run this in your terminal and save the output:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>openssl rand -base64 64</pre>
+    </div>
+
+    <div class="box warn">
+      <span class="box-icon">⚠️</span>
+      <div class="box-content">
+        <strong>Save everything in a notepad before continuing</strong>
+        You'll need: Supabase URL, anon key, service role key, JWT secret, Razorpay Key ID + Secret, Resend API key.
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── STAGE 1: GitHub ── -->
+  <section class="stage" id="github">
+    <div class="stage-header">
+      <div class="stage-number">1</div>
+      <h2>Push to GitHub</h2>
+    </div>
+
+    <p>Open a terminal inside the <code>new saas</code> folder. Run these commands in order.</p>
+
+    <div class="box tip">
+      <span class="box-icon">✅</span>
+      <div class="box-content">Your <code>.env</code> files are already excluded by <code>.gitignore</code> — your secrets will NOT be pushed to GitHub.</div>
+    </div>
+
+    <h3>Step 1A — Initialize Git (first time only)</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>git init
+git branch -M main</pre>
+    </div>
+
+    <h3>Step 1B — Add your GitHub remote</h3>
+    <p>Replace <code>YOUR_USERNAME</code> and <code>YOUR_REPO</code> with your real values:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git</pre>
+    </div>
+
+    <p>If you already ran this before and get an error, run this instead:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>git remote set-url origin https://github.com/YOUR_USERNAME/YOUR_REPO.git</pre>
+    </div>
+
+    <h3>Step 1C — Stage, commit, and push</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>git add .
+git commit -m "initial deployment commit"
+git push -u origin main</pre>
+    </div>
+  </section>
+
+
+  <!-- ── STAGE 2: Supabase ── -->
+  <section class="stage" id="supabase">
+    <div class="stage-header">
+      <div class="stage-number">2</div>
+      <h2>Supabase — Set Up the Database</h2>
+    </div>
+
+    <ol>
+      <li>Go to <strong>supabase.com</strong> → open your project</li>
+      <li>Left sidebar → <strong>SQL Editor</strong> → click <strong>New query</strong></li>
+    </ol>
+
+    <div id="sql">
+      <h3>Migration 1 — Full Schema (copy entire block → paste → Run)</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">sql · setup-complete.sql</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+        <pre>-- ============================================
+-- PluginVault Complete Database Schema
+-- ============================================
+
+create extension if not exists "uuid-ossp";
+
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  name text not null,
+  email text unique not null,
+  role text not null default 'customer' check (role in ('customer', 'developer', 'admin')),
+  business_name text,
+  avatar_url text,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.plugins (
+  id uuid primary key default uuid_generate_v4(),
+  developer_id uuid not null references public.profiles(id) on delete cascade,
+  name text not null,
+  slug text unique not null,
+  description text,
+  short_desc text,
+  category text,
+  tags text[],
+  current_version text,
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected', 'suspended')),
+  rejection_note text,
+  price numeric(10,2) not null default 0 check (price >= 0),
+  thumbnail_url text,
+  download_count integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.plugin_versions (
+  id uuid primary key default uuid_generate_v4(),
+  plugin_id uuid not null references public.plugins(id) on delete cascade,
+  version text not null,
+  zip_path text not null,
+  changelog text,
+  is_latest boolean not null default false,
+  created_at timestamptz not null default now(),
+  unique(plugin_id, version)
+);
+
+create table if not exists public.licenses (
+  id uuid primary key default uuid_generate_v4(),
+  plugin_id uuid not null references public.plugins(id) on delete restrict,
+  customer_id uuid not null references public.profiles(id) on delete restrict,
+  license_key text unique not null,
+  status text not null default 'active' check (status in ('active', 'suspended', 'expired', 'revoked')),
+  activation_limit integer not null default 1 check (activation_limit > 0),
+  expiry_date timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.activations (
+  id uuid primary key default uuid_generate_v4(),
+  license_id uuid not null references public.licenses(id) on delete cascade,
+  site_url text not null,
+  plugin_version text,
+  is_active boolean not null default true,
+  activated_at timestamptz not null default now(),
+  deactivated_at timestamptz,
+  unique(license_id, site_url)
+);
+
+create table if not exists public.orders (
+  id uuid primary key default uuid_generate_v4(),
+  customer_id uuid not null references public.profiles(id) on delete restrict,
+  plugin_id uuid not null references public.plugins(id) on delete restrict,
+  license_id uuid references public.licenses(id),
+  amount numeric(10,2) not null,
+  currency text not null default 'INR',
+  payment_status text not null default 'pending' check (payment_status in ('pending', 'paid', 'failed', 'refunded')),
+  razorpay_order_id text,
+  razorpay_payment_id text,
+  razorpay_signature text,
+  created_at timestamptz not null default now()
+);
+
+-- Indexes
+create index if not exists idx_plugins_developer_id on public.plugins(developer_id);
+create index if not exists idx_plugins_status on public.plugins(status);
+create index if not exists idx_plugins_slug on public.plugins(slug);
+create index if not exists idx_licenses_customer_id on public.licenses(customer_id);
+create index if not exists idx_licenses_plugin_id on public.licenses(plugin_id);
+create index if not exists idx_licenses_key on public.licenses(license_key);
+create index if not exists idx_activations_license on public.activations(license_id);
+create index if not exists idx_orders_customer on public.orders(customer_id);
+create index if not exists idx_orders_payment_id on public.orders(razorpay_payment_id);
+
+-- Auto-create profile on signup
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, name, email, role)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'name', 'User'),
+    new.email,
+    coalesce(new.raw_user_meta_data->>'role', 'customer')
+  );
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+-- Update timestamps
+create or replace function public.update_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_profiles_updated_at on public.profiles;
+create trigger update_profiles_updated_at before update on public.profiles
+  for each row execute function public.update_updated_at();
+
+-- Disable RLS (using server-side auth via service role key)
+alter table public.profiles disable row level security;
+alter table public.plugins disable row level security;
+alter table public.plugin_versions disable row level security;
+alter table public.licenses disable row level security;
+alter table public.activations disable row level security;
+alter table public.orders disable row level security;
+
+select 'Schema setup complete!' as status;</pre>
+      </div>
+
+      <h3>Migration 2 — Activation Code columns (new query → paste → Run)</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">sql · migrations/add_activation_code.sql</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+        <pre>ALTER TABLE public.licenses
+ADD COLUMN IF NOT EXISTS activation_code text;
+
+ALTER TABLE public.licenses
+ADD COLUMN IF NOT EXISTS activation_code_used boolean NOT NULL DEFAULT false;
+
+CREATE INDEX IF NOT EXISTS idx_licenses_activation_code ON public.licenses(activation_code);
+
+SELECT 'Activation code columns added!' as status;</pre>
+      </div>
+    </div>
+
+    <div class="box tip">
+      <span class="box-icon">✅</span>
+      <div class="box-content">You should see <code>Schema setup complete!</code> and <code>Activation code columns added!</code> at the bottom of each result panel.</div>
+    </div>
+  </section>
+
+
+  <!-- ── STAGE 3: Render ── -->
+  <section class="stage" id="render">
+    <div class="stage-header">
+      <div class="stage-number">3</div>
+      <h2>Backend — Deploy on Render</h2>
+    </div>
+
+    <ol>
+      <li>Go to <strong>dashboard.render.com</strong> → <strong>New + → Web Service</strong></li>
+      <li>Connect your GitHub repo</li>
+      <li>Set these build settings:</li>
+    </ol>
+
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>Root Directory</td><td><code>backend</code></td></tr>
+      <tr><td>Runtime</td><td><code>Node</code></td></tr>
+      <tr><td>Build Command</td><td><code>npm install</code></td></tr>
+      <tr><td>Start Command</td><td><code>npm start</code></td></tr>
+      <tr><td>Instance Type</td><td>Free</td></tr>
+    </table>
+
+    <div class="box warn">
+      <span class="box-icon">⚠️</span>
+      <div class="box-content"><strong>Don't click Create yet!</strong> Scroll down to add environment variables first.</div>
+    </div>
+
+    <div id="render-env">
+      <h3>Backend Environment Variables — paste each value exactly</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">env · Render Environment Tab</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+        <pre>NODE_ENV=production
+PORT=10000
+
+SUPABASE_URL=https://gdsemspksiritbymymjo.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkc2Vtc3Brc2lyaXRieW15bWpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MzA4NzksImV4cCI6MjA5NDEwNjg3OX0.yJu6xoH5O_-lkija8rPl3a2QcYLE0PLM-wlg6DoMg1k
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkc2Vtc3Brc2lyaXRieW15bWpvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODUzMDg3OSwiZXhwIjoyMDk0MTA2ODc5fQ.9F2AR0pKCJpQTvKfN0CSX_7K_UNjzqt6R93ADi8XPT8
+
+JWT_SECRET=pluginvault-super-secret-jwt-key-that-is-at-least-64-characters-long-for-security-2024
+
+RAZORPAY_KEY_ID=rzp_test_SrC0N8jdJdlmTO
+RAZORPAY_KEY_SECRET=2IAR0Flm3oMTacQ5Rg6uxZOP
+
+RESEND_API_KEY=YOUR_RESEND_API_KEY_HERE
+
+CLIENT_URL=https://YOUR_VERCEL_URL.vercel.app
+BACKEND_URL=https://YOUR_RENDER_SERVICE_NAME.onrender.com</pre>
+      </div>
+
+      <div class="box warn">
+        <span class="box-icon">⚠️</span>
+        <div class="box-content"><strong>Leave <code>CLIENT_URL</code> and <code>BACKEND_URL</code> for now.</strong> You'll fill these in after Vercel deploys (Stage 5).</div>
+      </div>
+
+      <div class="box danger">
+        <span class="box-icon">🔐</span>
+        <div class="box-content"><strong>Never share <code>SUPABASE_SERVICE_ROLE_KEY</code> or <code>RAZORPAY_KEY_SECRET</code>.</strong> These must only go on Render — never in the frontend or GitHub.</div>
+      </div>
+    </div>
+
+    <h3>Click Create Web Service → verify it works</h3>
+    <p>Once the deploy log shows <code>PluginVault API running on port 10000</code>, open this in your browser:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">url — health check</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>https://YOUR_RENDER_NAME.onrender.com/api/health</pre>
+    </div>
+    <p>Expected response:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>{ "success": true, "message": "PluginVault API is running" }</pre>
+    </div>
+
+    <div class="box tip">
+      <span class="box-icon">✅</span>
+      <div class="box-content">If you see this response, your backend is live. Copy the Render URL — you'll need it in the next step.</div>
+    </div>
+  </section>
+
+
+  <!-- ── STAGE 4: Vercel ── -->
+  <section class="stage" id="vercel">
+    <div class="stage-header">
+      <div class="stage-number">4</div>
+      <h2>Frontend — Deploy on Vercel</h2>
+    </div>
+
+    <ol>
+      <li>Go to <strong>vercel.com/new</strong> → import your GitHub repo</li>
+      <li>Set <strong>Root Directory</strong> → click Edit → type <code>frontend</code> → Continue</li>
+      <li>Framework will auto-detect as <strong>Vite</strong> — leave all other defaults</li>
+    </ol>
+
+    <div id="vercel-env">
+      <h3>Frontend Environment Variables — paste each value exactly</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">env · Vercel → Settings → Environment Variables</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+        <pre>VITE_API_URL=https://YOUR_RENDER_NAME.onrender.com/api
+VITE_SUPABASE_URL=https://gdsemspksiritbymymjo.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkc2Vtc3Brc2lyaXRieW15bWpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MzA4NzksImV4cCI6MjA5NDEwNjg3OX0.yJu6xoH5O_-lkija8rPl3a2QcYLE0PLM-wlg6DoMg1k
+VITE_RAZORPAY_KEY_ID=rzp_test_SrC0N8jdJdlmTO</pre>
+      </div>
+
+      <div class="box info">
+        <span class="box-icon">ℹ️</span>
+        <div class="box-content">Replace <code>VITE_API_URL</code> with your actual Render service URL from Stage 3.</div>
+      </div>
+    </div>
+
+    <h3>Click Deploy</h3>
+    <p>Build takes ~1 minute. Your Vercel URL will look like:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">your live url</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>https://pluginvault-abc123.vercel.app</pre>
+    </div>
+
+    <div class="box tip">
+      <span class="box-icon">✅</span>
+      <div class="box-content">Open your Vercel URL — if the login page loads, the frontend is live. Copy this URL for the next step.</div>
+    </div>
+  </section>
+
+
+  <!-- ── STAGE 5: Connect ── -->
+  <section class="stage" id="connect">
+    <div class="stage-header">
+      <div class="stage-number">5</div>
+      <h2>Wire Everything Together</h2>
+    </div>
+
+    <h3>5A — Update CORS on Render</h3>
+    <ol>
+      <li>Go to Render → your service → <strong>Environment</strong> tab</li>
+      <li>Find <code>CLIENT_URL</code> → set it to your Vercel URL:</li>
+    </ol>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">value to paste</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>CLIENT_URL=https://pluginvault-abc123.vercel.app</pre>
+    </div>
+    <ol start="3">
+      <li>Also update <code>BACKEND_URL</code> to your Render URL:</li>
+    </ol>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">value to paste</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>BACKEND_URL=https://pluginvault-server.onrender.com</pre>
+    </div>
+    <ol start="4">
+      <li>Click <strong>Save Changes</strong> → <strong>Manual Deploy → Deploy latest commit</strong></li>
+    </ol>
+
+    <h3>5B — Configure Supabase Auth Redirects</h3>
+    <ol>
+      <li>Supabase dashboard → <strong>Authentication → URL Configuration</strong></li>
+      <li>Set <strong>Site URL</strong>:</li>
+    </ol>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">supabase site url</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>https://pluginvault-abc123.vercel.app</pre>
+    </div>
+    <ol start="3">
+      <li>Under <strong>Redirect URLs</strong> → add:</li>
+    </ol>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">redirect url</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>https://pluginvault-abc123.vercel.app/**</pre>
+    </div>
+    <ol start="4"><li>Click <strong>Save</strong></li></ol>
+  </section>
+
+
+  <!-- ── STAGE 6: Admin ── -->
+  <section class="stage" id="admin">
+    <div class="stage-header">
+      <div class="stage-number">6</div>
+      <h2>Create Your Admin Account</h2>
+    </div>
+
+    <h3>Step 1 — Sign up through the app</h3>
+    <ol>
+      <li>Open your Vercel URL → click <strong>Sign Up</strong></li>
+      <li>Create an account with any email you want (e.g. <code>admin@pluginvault.com</code>)</li>
+    </ol>
+
+    <h3>Step 2 — Promote to admin in Supabase SQL Editor</h3>
+    <p>Go to Supabase → <strong>SQL Editor → New query</strong> → paste and run:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">sql</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>UPDATE public.profiles
+SET role = 'admin'
+WHERE email = 'admin@pluginvault.com';</pre>
+    </div>
+
+    <div class="box tip">
+      <span class="box-icon">✅</span>
+      <div class="box-content">You should see <code>1 row affected</code>. Log out and log back in — you now have admin access to the dashboard.</div>
+    </div>
+  </section>
+
+
+  <!-- ── STAGE 7: WordPress ── -->
+  <section class="stage" id="wp">
+    <div class="stage-header">
+      <div class="stage-number">7</div>
+      <h2>WordPress Plugin API</h2>
+    </div>
+
+    <div class="box purple">
+      <span class="box-icon">🔌</span>
+      <div class="box-content">
+        <strong>What this is</strong>
+        Your backend exposes a set of WordPress-compatible API endpoints under <code>/api/wp/</code>. You embed these into your plugin's PHP code so WordPress can automatically check for updates, activate licenses, and download new versions.
+      </div>
+    </div>
+
+    <h3>Live API Endpoints</h3>
+
+    <div class="wp-endpoint">
+      <span class="method get">GET</span>
+      <span class="endpoint-path">/api/wp/check-update</span>
+      <span class="endpoint-desc">Check if a new version is available</span>
+    </div>
+    <div class="wp-endpoint">
+      <span class="method get">GET</span>
+      <span class="endpoint-path">/api/wp/download</span>
+      <span class="endpoint-desc">Download the latest plugin ZIP (token-protected)</span>
+    </div>
+    <div class="wp-endpoint">
+      <span class="method post">POST</span>
+      <span class="endpoint-path">/api/wp/activate</span>
+      <span class="endpoint-desc">Activate a license on a WordPress site</span>
+    </div>
+    <div class="wp-endpoint">
+      <span class="method post">POST</span>
+      <span class="endpoint-path">/api/wp/deactivate</span>
+      <span class="endpoint-desc">Deactivate a license from a site</span>
+    </div>
+    <div class="wp-endpoint">
+      <span class="method get">GET</span>
+      <span class="endpoint-path">/api/wp/validate-license</span>
+      <span class="endpoint-desc">Validate a license key status</span>
+    </div>
+
+    <div id="wp-php">
+      <h3>PHP — Check for Updates (add to your plugin file)</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">php · your-plugin.php</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+        <pre>&lt;?php
+// ── PluginVault Update Checker ──────────────────────────
+define( 'PLUGINVAULT_API',    'https://YOUR_RENDER_NAME.onrender.com/api/wp' );
+define( 'PLUGINVAULT_SLUG',   'your-plugin-slug' );   // must match what's in the dashboard
+define( 'PLUGINVAULT_LICENSE', get_option( 'your_plugin_license_key', '' ) );
+
+add_filter( 'pre_set_site_transient_update_plugins', 'pluginvault_check_update' );
+function pluginvault_check_update( $transient ) {
+    if ( empty( $transient->checked ) ) return $transient;
+
+    $response = wp_remote_get( add_query_arg( [
+        'license_key'     =&gt; PLUGINVAULT_LICENSE,
+        'plugin_slug'     =&gt; PLUGINVAULT_SLUG,
+        'current_version' =&gt; $transient-&gt;checked[ plugin_basename( __FILE__ ) ] ?? '1.0.0',
+    ], PLUGINVAULT_API . '/check-update' ) );
+
+    if ( is_wp_error( $response ) ) return $transient;
+
+    $body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+    if ( ! empty( $body['data']['update_available'] ) ) {
+        $transient-&gt;response[ plugin_basename( __FILE__ ) ] = (object) [
+            'slug'        =&gt; PLUGINVAULT_SLUG,
+            'new_version' =&gt; $body['data']['new_version'],
+            'package'     =&gt; $body['data']['download_url'],
+            'url'         =&gt; 'https://your-app.vercel.app',
+        ];
+    }
+
+    return $transient;
+}
+?&gt;</pre>
+      </div>
+
+      <h3>PHP — License Activation (settings page)</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">php · license-activation.php</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+        <pre>&lt;?php
+function pluginvault_activate_license( $license_key, $activation_code ) {
+    $response = wp_remote_post( PLUGINVAULT_API . '/activate', [
+        'headers' =&gt; [ 'Content-Type' =&gt; 'application/json' ],
+        'body'    =&gt; wp_json_encode( [
+            'license_key'     =&gt; $license_key,
+            'activation_code' =&gt; $activation_code,
+            'site_url'        =&gt; home_url(),
+            'plugin_slug'     =&gt; PLUGINVAULT_SLUG,
+            'plugin_version'  =&gt; YOUR_PLUGIN_VERSION,
+        ] ),
+    ] );
+
+    if ( is_wp_error( $response ) ) {
+        return [ 'success' =&gt; false, 'message' =&gt; $response-&gt;get_error_message() ];
+    }
+
+    $body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+    if ( $body['success'] ) {
+        update_option( 'your_plugin_license_key', $license_key );
+        update_option( 'your_plugin_license_status', 'active' );
+    }
+
+    return $body;
+}
+
+function pluginvault_deactivate_license( $license_key ) {
+    $response = wp_remote_post( PLUGINVAULT_API . '/deactivate', [
+        'headers' =&gt; [ 'Content-Type' =&gt; 'application/json' ],
+        'body'    =&gt; wp_json_encode( [
+            'license_key' =&gt; $license_key,
+            'site_url'    =&gt; home_url(),
+        ] ),
+    ] );
+
+    $body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+    if ( $body['success'] ) {
+        delete_option( 'your_plugin_license_key' );
+        delete_option( 'your_plugin_license_status' );
+    }
+
+    return $body;
+}
+?&gt;</pre>
+      </div>
+
+      <h3>PHP — Validate License on Every Page Load</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+        <pre>&lt;?php
+function pluginvault_is_licensed() {
+    $license_key = get_option( 'your_plugin_license_key', '' );
+    if ( empty( $license_key ) ) return false;
+
+    // Cache result for 12 hours to avoid hammering the API
+    $cached = get_transient( 'pluginvault_license_valid' );
+    if ( $cached !== false ) return (bool) $cached;
+
+    $response = wp_remote_get( add_query_arg( [
+        'license_key' =&gt; $license_key,
+        'site_url'    =&gt; home_url(),
+        'plugin_slug' =&gt; PLUGINVAULT_SLUG,
+    ], PLUGINVAULT_API . '/validate-license' ) );
+
+    $body = json_decode( wp_remote_retrieve_body( $response ), true );
+    $valid = ! empty( $body['data']['is_valid'] );
+
+    set_transient( 'pluginvault_license_valid', $valid, 12 * HOUR_IN_SECONDS );
+    return $valid;
+}
+
+// Usage in your plugin:
+// if ( ! pluginvault_is_licensed() ) {
+//     // Show "please activate your license" notice
+//     // and block premium features
+// }
+?&gt;</pre>
+      </div>
+
+      <div class="box info">
+        <span class="box-icon">ℹ️</span>
+        <div class="box-content">
+          <strong>How the activation flow works</strong>
+          1. Customer buys a plugin → a license key + one-time activation code are generated in the dashboard.<br>
+          2. Customer copies both into your plugin's settings page.<br>
+          3. Your PHP calls <code>/api/wp/activate</code> → the code is verified and consumed (one-use only).<br>
+          4. From then on, <code>/api/wp/validate-license</code> keeps the site authorized.
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── Final Checklist ── -->
+  <section class="stage" id="checklist">
+    <div class="stage-header">
+      <div class="stage-number">✓</div>
+      <h2>Final Checklist</h2>
+    </div>
+
+    <ul class="checklist">
+      <li><span class="check">✓</span> Code pushed to GitHub (no <code>.env</code> files)</li>
+      <li><span class="check">✓</span> Supabase schema migrated (setup-complete.sql + add_activation_code.sql)</li>
+      <li><span class="check">✓</span> Backend deployed on Render and health check returns 200</li>
+      <li><span class="check">✓</span> Frontend deployed on Vercel and app loads in browser</li>
+      <li><span class="check">✓</span> <code>CLIENT_URL</code> on Render updated to Vercel URL → redeployed</li>
+      <li><span class="check">✓</span> <code>BACKEND_URL</code> on Render set to Render URL → redeployed</li>
+      <li><span class="check">✓</span> Supabase Auth Site URL + Redirect URLs configured</li>
+      <li><span class="check">✓</span> Admin account created and promoted via SQL</li>
+      <li><span class="check">✓</span> WordPress PHP integration tested with a real license key</li>
+    </ul>
+  </section>
+
+
+  <!-- ── Common Fixes ── -->
+  <section class="stage" id="fixes">
+    <div class="stage-header">
+      <div class="stage-number">!</div>
+      <h2>Common Errors &amp; Fixes</h2>
+    </div>
+
+    <h3>API calls fail with "Network Error"</h3>
+    <div class="box danger">
+      <span class="box-icon">🔴</span>
+      <div class="box-content">
+        <strong>Check both URLs match exactly (no trailing slash)</strong>
+        <code>VITE_API_URL</code> on Vercel must end in <code>/api</code><br>
+        <code>CLIENT_URL</code> on Render must be your exact Vercel origin<br>
+        Redeploy both services after changing env vars.
+      </div>
+    </div>
+
+    <h3>Blank page on refresh (e.g. /dashboard)</h3>
+    <div class="box info">
+      <span class="box-icon">ℹ️</span>
+      <div class="box-content">Already fixed by <code>frontend/vercel.json</code>. Make sure that file is committed to GitHub and not in <code>.gitignore</code>.</div>
+    </div>
+
+    <h3>Render is very slow on first request (30–60s)</h3>
+    <div class="box warn">
+      <span class="box-icon">⚠️</span>
+      <div class="box-content">
+        <strong>Free tier services sleep after 15 min of inactivity.</strong>
+        Use <a href="https://uptimerobot.com" style="color:inherit">UptimeRobot</a> (free) to ping your health URL every 10 minutes:
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">uptime monitor url</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy</button></div>
+      <pre>https://YOUR_RENDER_NAME.onrender.com/api/health</pre>
+    </div>
+
+    <h3>Emails not sending</h3>
+    <div class="box warn">
+      <span class="box-icon">⚠️</span>
+      <div class="box-content"><code>RESEND_API_KEY</code> is empty on Render. Get a free key at resend.com → add it → redeploy.</div>
+    </div>
+
+    <h3>WordPress "Invalid activation code"</h3>
+    <div class="box info">
+      <span class="box-icon">ℹ️</span>
+      <div class="box-content">Activation codes are one-time use. Once consumed, the same code cannot be reused. The customer needs to contact you for a new one, or you can reset it in the Supabase <code>licenses</code> table by setting <code>activation_code_used = false</code>.</div>
+    </div>
+
+    <h3>VITE_ env vars not working on frontend</h3>
+    <div class="box danger">
+      <span class="box-icon">🔴</span>
+      <div class="box-content">All Vite env vars must start with <code>VITE_</code> — otherwise Vite ignores them. After adding/changing env vars on Vercel, trigger a manual redeploy.</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Copied!`;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy`;
+      }, 2000);
+    });
+  }
+
+  // Highlight active nav link on scroll
+  const sections = document.querySelectorAll('.stage[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
