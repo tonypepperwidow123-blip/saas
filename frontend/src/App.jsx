@@ -14,6 +14,37 @@ function App() {
     initRef.current = true;
 
     const checkSession = async () => {
+      try {
+        // 1. Check if there is an active Supabase session (e.g. from Google redirect)
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.access_token) {
+          const currentToken = useAuthStore.getState().token;
+          if (currentToken !== session.access_token) {
+            useAuthStore.getState().setAuth(null, session.access_token);
+            
+            const response = await authService.me();
+            if (response.success && response.data?.user) {
+              const user = response.data.user;
+              useAuthStore.getState().setAuth(user, session.access_token);
+              
+              let redirectPath = '/customer/dashboard';
+              if (user.role === 'admin') redirectPath = '/admin/dashboard';
+              else if (user.role === 'developer') redirectPath = '/developer/dashboard';
+              
+              const currentPath = window.location.pathname;
+              if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
+                window.location.href = redirectPath;
+              }
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error checking initial Supabase session:', err);
+      }
+
+      // 2. Fallback to normal local stored token check
       const storedToken = useAuthStore.getState().token;
       if (storedToken) {
         try {
