@@ -24,6 +24,10 @@ api.interceptors.request.use(
 );
 
 // Response interceptor - handle 401 globally
+// IMPORTANT: Only redirect to /login if the user was genuinely authenticated
+// (i.e. had a real user object in state, not just a temporary token probe).
+// This prevents false logouts during the Google OAuth callback flow where
+// App.jsx temporarily sets a token before /auth/me confirms the profile.
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -32,9 +36,14 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      useAuthStore.getState().logout();
+      const state = useAuthStore.getState();
+      const wasAuthenticated = !!state.user; // Only redirect if a real user was loaded
 
-      window.location.href = '/login';
+      state.logout();
+
+      if (wasAuthenticated) {
+        window.location.href = '/login';
+      }
 
       return Promise.reject(error);
     }
