@@ -1,14 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// The service-role key must be sent as BOTH the 'apikey' header (done
-// automatically by createClient) AND as 'Authorization: Bearer <key>'.
-// Supabase Storage checks the Authorization header to determine the
-// caller's role. Without it, Storage treats the request as anonymous
-// and enforces RLS policies, causing "violates row level security policy"
-// even though the service-role key is present.
+// supabaseAdmin — service role key, bypasses RLS, used for:
+//   - reading/writing profiles, plugins, licenses, etc.
+//   - validating user JWTs via getUser(token)
+//   - creating users via auth.admin.createUser()
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
@@ -21,3 +20,12 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   },
 });
 
+// supabaseClient — anon key, used ONLY for:
+//   - signInWithPassword() (requires anon key, NOT service role)
+// The service role client cannot perform user-facing auth operations.
+export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+});
