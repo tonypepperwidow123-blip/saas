@@ -61,17 +61,13 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          // Must be registered in Supabase → Authentication → Redirect URLs
-          // The PKCE code will be exchanged at this URL after Google redirects
+          // redirectTo MUST be added to Supabase → Auth → URL Configuration → Redirect URLs
+          // Add both http://localhost:5173 (dev) and https://saas-sage-beta-25.vercel.app (prod)
           redirectTo: window.location.origin,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
         },
       });
       if (error) throw error;
-      // Browser will navigate away to Google — no need to setLoading(false)
+      // Browser navigates to Google — loading state stays until redirect
     } catch (err) {
       console.error('Google sign-in error:', err);
       toast.error(err.message || 'Google sign-in failed. Please try again.');

@@ -1,14 +1,19 @@
 /**
  * App.jsx — Authentication Session Manager
  *
- * Supports two login flows:
+ * Three session sources handled in priority order:
  *
- * 1. EMAIL/PASSWORD  — Login.jsx calls backend /auth/login, gets token, stores in Zustand
- * 2. GOOGLE OAUTH    — supabase.auth.signInWithOAuth → Google redirect → back here
- *    - Supabase auto-exchanges the code and fires onAuthStateChange (SIGNED_IN)
- *    - We call /auth/me to get the full profile and store it in Zustand
- *    - Brand-new Google users (account < 2 min old) → /select-role
- *    - Existing Google users → straight to their dashboard
+ * 1. URL hash   — #access_token=ey... (Google OAuth implicit flow callback)
+ *                 Extract the token directly and validate via our backend.
+ *                 This bypasses the Supabase client's auth/v1/user call
+ *                 (which can fail with 401 in some deploy configs).
+ *
+ * 2. Supabase session — getSession() returns a live Supabase session
+ *                 (PKCE flow or stored session from previous login)
+ *
+ * 3. Zustand store — a token persisted from a previous email/password login
+ *
+ * For all cases: validate by calling our backend /auth/me (service-role backed).
  */
 import { useEffect, useRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
@@ -30,13 +35,24 @@ const onAuthOrRootPage = () => {
 };
 
 /**
- * Returns true only if the Supabase user account was created less than
- * 2 minutes ago — meaning this is their very first sign-in ever.
+ * True only if the Supabase account was created < 2 minutes ago.
+ * Used to detect a brand-new Google OAuth user who needs to pick a role.
  */
 const isNewAccount = (supabaseUser) => {
   if (!supabaseUser?.created_at) return false;
   const ageMs = Date.now() - new Date(supabaseUser.created_at).getTime();
   return ageMs < 120_000; // 2 minutes
+};
+
+/**
+ * Parse URL hash string like "#access_token=ey...&token_type=bearer&..."
+ * Returns null if no access_token is found.
+ */
+const extractTokenFromHash = () => {
+  const hash = window.location.hash;
+  if (!hash || !hash.includes('access_token')) return null;
+  const params = new URLSearchParams(hash.replace(/^#/, ''));
+  return params.get('access_token') || null;
 };
 
 function App() {
@@ -47,18 +63,12 @@ function App() {
     initRef.current = true;
 
     /**
-     * syncWithBackend — given a valid Supabase access token:
-     *  1. Calls /auth/me to get (or auto-create) the backend profile
-     *  2. Stores the user + token in Zustand
-     *  3. Redirects from auth/root pages to the correct destination:
-     *     - Brand-new Google user → /select-role to pick developer | customer
-     *     - Everyone else        → their role dashboard
+     * syncWithBackend — validates an access token via our backend /auth/me
+     * (which uses supabaseAdmin.auth.getUser — service-role key — so it works
+     *  even when the Supabase client-side validation returns 401).
      */
     const syncWithBackend = async (accessToken, supabaseUser = null) => {
       try {
-        // Temporarily set only the token so api.js sends the Authorization header.
-        // We do NOT call setAuth here to avoid briefly setting isAuthenticated=false
-        // which would cause DashboardLayout to flash-redirect to /login.
         useAuthStore.getState().setTokenOnly(accessToken);
 
         const res = await authService.me();
@@ -66,54 +76,71 @@ function App() {
         if (res?.success && res.data?.user) {
           const user = res.data.user;
 
-          // Detect a brand-new Google OAuth account (< 2 min old).
-          // Existing Google users who already have a role must NOT be re-onboarded.
-          const isGoogle = supabaseUser?.app_metadata?.provider === 'google';
+          // New Google OAuth account (< 2 min old) → must pick developer | customer
+          const isGoogle =
+            supabaseUser?.app_metadata?.provider === 'google' ||
+            supabaseUser?.identities?.some((i) => i.provider === 'google');
           const needsOnboarding = isGoogle && isNewAccount(supabaseUser);
 
           useAuthStore.getState().setAuth(user, accessToken, needsOnboarding);
 
-          // Only redirect when we are on an auth/root page (not inside a dashboard)
           if (onAuthOrRootPage()) {
-            if (needsOnboarding) {
-              window.location.replace('/select-role');
-            } else {
-              window.location.replace(getDashboardPath(user.role));
+            // Clean the URL hash so it doesn't show raw tokens in the address bar
+            if (window.location.hash.includes('access_token')) {
+              window.history.replaceState(null, '', window.location.pathname);
             }
+            window.location.replace(
+              needsOnboarding ? '/select-role' : getDashboardPath(user.role)
+            );
           }
           return true;
         }
       } catch (err) {
-        console.error('[Auth] syncWithBackend failed:', err?.response?.data?.error || err.message);
+        console.error(
+          '[Auth] syncWithBackend failed:',
+          err?.response?.data?.error || err.message
+        );
       }
 
-      // /auth/me failed — clear the store so the user can try again
       useAuthStore.getState().logout();
       return false;
     };
 
-    // ── Initial load: try to restore the session ────────────────────────────
+    // ── Session bootstrap ─────────────────────────────────────────────────────
     const initSession = async () => {
       const store = useAuthStore.getState();
 
-      // Already have a fully-hydrated user in store → nothing to do
+      // Already have a hydrated user → nothing to do
       if (store.user && store.token) return;
 
+      // ── Priority 1: URL hash has #access_token (Google OAuth implicit flow) ─
+      const hashToken = extractTokenFromHash();
+      if (hashToken) {
+        console.log('[Auth] Detected #access_token in URL hash — syncing…');
+        // Try to get the full Supabase user object (may fail, that's OK)
+        let supabaseUser = null;
+        try {
+          const { data } = await supabase.auth.getUser(hashToken);
+          supabaseUser = data?.user ?? null;
+        } catch (_) {
+          // Ignore — backend will validate
+        }
+        await syncWithBackend(hashToken, supabaseUser);
+        return;
+      }
+
+      // ── Priority 2: Supabase already has a session (PKCE or persisted) ──────
       try {
         const { data: { session } } = await supabase.auth.getSession();
-
-        if (session?.access_token) {
-          // Supabase has a live session (e.g. Google OAuth callback or refresh)
-          if (session.access_token !== store.token) {
-            await syncWithBackend(session.access_token, session.user);
-          }
+        if (session?.access_token && session.access_token !== store.token) {
+          await syncWithBackend(session.access_token, session.user);
           return;
         }
       } catch (err) {
         console.error('[Auth] getSession error:', err.message);
       }
 
-      // No Supabase session — validate any token persisted in Zustand
+      // ── Priority 3: Token persisted in Zustand from email/password login ────
       const storedToken = store.token;
       if (storedToken) {
         try {
@@ -131,7 +158,7 @@ function App() {
 
     initSession();
 
-    // ── Realtime: handle OAuth callback, token refresh, sign-out ────────────
+    // ── Realtime listener (token refresh, sign-out, PKCE SIGNED_IN) ───────────
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_OUT') {
@@ -141,7 +168,6 @@ function App() {
 
         if (session?.access_token) {
           const store = useAuthStore.getState();
-          // Only sync when the token actually changed to avoid redundant calls
           if (session.access_token !== store.token) {
             await syncWithBackend(session.access_token, session.user);
           }
