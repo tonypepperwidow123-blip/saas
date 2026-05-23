@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { developerService } from '../../services/developer.service';
 import PageHeader from '../../components/shared/PageHeader';
-import StatusBadge from '../../components/shared/StatusBadge';
 import EmptyState from '../../components/shared/EmptyState';
 import { formatDate } from '../../utils/formatters';
 
@@ -27,30 +26,44 @@ export default function DeveloperCustomers() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Customers" description="View customers who purchased your plugins" />
+    <div className="space-y-6 page-enter">
+      <PageHeader 
+        title="Customers" 
+        description="View details of developers and builders who license your WordPress extensions" 
+      />
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
-          <div className="p-6 space-y-4">{[1, 2, 3, 4, 5].map(i => <div key={i} className="h-16 animate-pulse rounded bg-bg-elevated" />)}</div>
+          <div className="p-6 space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 shimmer rounded-xl" />
+            ))}
+          </div>
         ) : customers.length === 0 ? (
-          <EmptyState title="No customers yet" description="Customers will appear here after purchasing your plugins" />
+          <EmptyState 
+            title="No customers yet" 
+            description="Your customer base will populate automatically as users license your plugins." 
+          />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Customer</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Email</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Joined</th>
+                <tr>
+                  <th>Customer Name</th>
+                  <th>Email Address</th>
+                  <th>Acquisition Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {customers.map(cust => (
-                  <tr key={cust.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4 font-medium text-text-primary">{cust.name || 'N/A'}</td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{cust.email || 'N/A'}</td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(cust.created_at)}</td>
+                  <tr key={cust.id}>
+                    <td className="font-semibold text-text-primary">
+                      {cust.name || 'Anonymous User'}
+                    </td>
+                    <td className="font-mono text-xs text-text-secondary">
+                      {cust.email || 'N/A'}
+                    </td>
+                    <td>{formatDate(cust.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -60,4 +73,4 @@ export default function DeveloperCustomers() {
       </div>
     </div>
   );
-}
+}

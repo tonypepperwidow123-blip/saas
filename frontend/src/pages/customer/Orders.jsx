@@ -28,39 +28,68 @@ export default function CustomerOrders() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="My Orders" description="View your purchase history" />
+    <div className="space-y-6 page-enter">
+      <PageHeader 
+        title="My Orders" 
+        description="View your purchase history, receipts, and order billing logs" 
+      />
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
-          <div className="p-6 space-y-4">{[1, 2, 3, 4, 5].map(i => <div key={i} className="h-16 animate-pulse rounded bg-bg-elevated" />)}</div>
+          <div className="p-6 space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 shimmer rounded-xl" />
+            ))}
+          </div>
         ) : orders.length === 0 ? (
-          <EmptyState title="No orders" description="Start shopping to see your orders here"
-            action={<Link to="/shop" className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover">Browse Plugins</Link>}
+          <EmptyState 
+            title="No orders yet" 
+            description="Your checkout logs and subscription orders will display here."
+            action={
+              <Link 
+                to="/shop" 
+                className="btn-amber px-5 py-2.5 rounded-xl text-sm font-semibold inline-flex items-center gap-2"
+              >
+                Browse Marketplace
+              </Link>
+            }
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Plugin</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Amount</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Status</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Date</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Actions</th>
+                <tr>
+                  <th>Order Reference ID</th>
+                  <th>Plugin Product</th>
+                  <th>Amount Paid</th>
+                  <th>Payment Status</th>
+                  <th>Date Purchased</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {orders.map(order => (
-                  <tr key={order.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-text-primary">{order.plugin?.name || 'N/A'}</div>
+                  <tr key={order.id}>
+                    <td>
+                      <span className="font-mono text-xs text-text-secondary bg-bg-base/50 px-2 py-0.5 rounded border border-border-subtle">
+                        {order.id.slice(0, 8)}...
+                      </span>
                     </td>
-                    <td className="px-6 py-4 font-medium">{formatCurrency(order.amount)}</td>
-                    <td className="px-6 py-4"><StatusBadge status={order.payment_status} size="sm" /></td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(order.created_at)}</td>
-                    <td className="px-6 py-4">
-                      <Link to={`/plugins/${order.plugin?.id}`} className="text-sm text-accent hover:text-accent-hover">View Plugin</Link>
+                    <td className="font-semibold text-text-primary">
+                      {order.plugin?.name || 'N/A'}
+                    </td>
+                    <td className="font-bold font-mono text-accent">{formatCurrency(order.amount)}</td>
+                    <td>
+                      <StatusBadge status={order.payment_status} size="sm" />
+                    </td>
+                    <td>{formatDate(order.created_at)}</td>
+                    <td>
+                      <Link 
+                        to={`/plugins/${order.plugin?.id}`} 
+                        className="btn-ghost px-3 py-1.5 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5 transition-all text-center"
+                      >
+                        View Listing
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -71,4 +100,4 @@ export default function CustomerOrders() {
       </div>
     </div>
   );
-}
+}

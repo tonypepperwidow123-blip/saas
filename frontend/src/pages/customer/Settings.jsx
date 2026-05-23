@@ -41,54 +41,99 @@ export default function CustomerSettings() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Settings" description="Manage your account settings" />
+    <div className="space-y-6 page-enter">
+      <PageHeader 
+        title="Settings" 
+        description="Configure your customer account configurations and personal security preferences" 
+      />
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card">
-        <div className="border-b border-border-subtle px-6 py-4">
-          <h2 className="text-lg font-semibold text-text-primary">Profile Settings</h2>
-        </div>
-        <div className="p-6 space-y-4">
-          {loading ? (
-            <div className="space-y-4">{[1, 2].map(i => <div key={i} className="h-12 animate-pulse rounded bg-bg-elevated" />)}</div>
-          ) : (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary">Full Name</label>
-                <input type="text" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Main Settings Panel */}
+        <div className="lg:col-span-2 glass-card p-8 rounded-3xl border border-border-subtle shadow-card card-accent-top space-y-6">
+          <div>
+            <h2 className="text-lg font-bold text-text-primary">Profile Configuration</h2>
+            <p className="text-xs text-text-secondary">Update your account identity details</p>
+          </div>
+          
+          <div className="space-y-5">
+            {loading ? (
+              <div className="space-y-4">
+                {[1, 2].map(i => (
+                  <div key={i} className="h-12 shimmer rounded-xl" />
+                ))}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary">Email</label>
-                <input type="email" value={profile.email} disabled
-                  className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-muted cursor-not-allowed" />
-              </div>
-              <button onClick={handleSave} disabled={saving}
-                className="rounded-lg bg-accent px-6 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50">
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </>
-          )}
-        </div>
-      </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Full Name</label>
+                    <input 
+                      type="text" 
+                      value={profile.name} 
+                      onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                      className="input-field mt-1.5" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Email Address</label>
+                    <input 
+                      type="email" 
+                      value={profile.email} 
+                      disabled
+                      className="input-field mt-1.5 opacity-60 cursor-not-allowed bg-bg-surface/50 border-border-strong text-text-secondary" 
+                    />
+                  </div>
+                </div>
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card">
-        <div className="border-b border-border-subtle px-6 py-4">
-          <h2 className="text-lg font-semibold text-text-primary">Account Information</h2>
+                <div className="pt-2">
+                  <button 
+                    onClick={handleSave} 
+                    disabled={saving}
+                    className="btn-amber rounded-xl px-6 py-2.5 text-sm font-bold shadow-glow-sm hover:shadow-glow inline-flex items-center gap-2"
+                  >
+                    {saving ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4 text-black" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Saving changes…
+                      </>
+                    ) : (
+                      'Save Changes'
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-        <div className="p-6">
-          <div className="space-y-3">
-            <div className="flex justify-between py-2 border-b border-border-subtle">
-              <span className="text-text-secondary">Account Type</span>
-              <span className="font-medium text-text-primary">Customer</span>
+
+        {/* Sidebar Info Panel */}
+        <div className="space-y-6">
+          <div className="glass-card p-6.5 rounded-3xl border border-border-subtle shadow-card card-accent-top space-y-4">
+            <div>
+              <h2 className="text-md font-bold text-text-primary">Buyer Profile</h2>
+              <p className="text-xs text-text-secondary">Platform identity & credentials</p>
             </div>
-            <div className="flex justify-between py-2 border-b border-border-subtle">
-              <span className="text-text-secondary">User ID</span>
-              <span className="font-mono text-sm text-text-muted">{userId?.slice(0, 8)}...</span>
+            
+            <div className="space-y-4 text-sm font-medium">
+              <div className="flex justify-between items-center py-2 border-b border-border-subtle">
+                <span className="text-text-secondary">Account Role</span>
+                <span className="font-bold text-accent uppercase tracking-wider text-xs">Customer</span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-text-secondary">Account ID</span>
+                <code className="text-xs font-mono text-text-secondary bg-bg-base/50 px-2 py-0.5 rounded border border-border-subtle">
+                  {userId?.slice(0, 8)}...
+                </code>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );
-}
+}

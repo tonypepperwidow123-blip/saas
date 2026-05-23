@@ -1,13 +1,52 @@
 export default function PageHeader({ title, description, actions }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div style={{
+      marginBottom: '28px',
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '16px',
+      animation: 'fade-in 0.35s ease forwards',
+    }}>
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">{title}</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+          {/* Amber accent bar */}
+          <div style={{
+            width: '3px',
+            height: '22px',
+            borderRadius: '2px',
+            background: 'linear-gradient(180deg, #f59e0b, #d97706)',
+            boxShadow: '0 0 8px rgba(245,158,11,0.5)',
+            flexShrink: 0,
+          }} />
+          <h1 style={{
+            fontFamily: 'Syne, sans-serif',
+            fontWeight: '800',
+            fontSize: '22px',
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.03em',
+            lineHeight: '1.1',
+          }}>
+            {title}
+          </h1>
+        </div>
         {description && (
-          <p className="mt-1 text-sm text-text-secondary">{description}</p>
+          <p style={{
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            fontFamily: 'DM Sans, sans-serif',
+            paddingLeft: '13px',
+          }}>
+            {description}
+          </p>
         )}
       </div>
-      {actions && <div className="flex items-center gap-3">{actions}</div>}
+      {actions && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

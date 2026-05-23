@@ -75,40 +75,83 @@ export default function DeveloperRevenue() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Revenue" description="Track your earnings from plugin sales" />
+    <div className="space-y-6 page-enter">
+      <PageHeader 
+        title="Revenue" 
+        description="Track and monitor gross proceeds and transaction streams from your WordPress listings" 
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard title="Total Revenue" value={stats?.totalRevenue || 0} currency />
-        <StatCard title="This Month" value={stats?.thisMonth || 0} currency />
-        <StatCard title="Total Sales" value={stats?.totalSales || 0} loading={loading} />
+        <StatCard 
+          title="Total Revenue" 
+          value={stats?.totalRevenue || 0} 
+          currency={true} 
+          loading={loading}
+          icon={
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          }
+        />
+        <StatCard 
+          title="This Month" 
+          value={stats?.thisMonth || 0} 
+          currency={true} 
+          loading={loading}
+          icon={
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          }
+        />
+        <StatCard 
+          title="Total Sales" 
+          value={stats?.totalSales || 0} 
+          loading={loading}
+          icon={
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+          }
+        />
       </div>
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
           <div className="p-6 space-y-4">
-            {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-16 animate-pulse rounded bg-bg-elevated" />)}
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 shimmer rounded-xl" />
+            ))}
           </div>
         ) : orders.length === 0 ? (
-          <EmptyState title="No sales yet" description="Once customers purchase your plugins, you'll see revenue here" />
+          <EmptyState 
+            title="No sales yet" 
+            description="Purchased customer transaction orders will list here." 
+          />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Plugin</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Customer</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Amount</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Date</th>
+                <tr>
+                  <th>Order Reference ID</th>
+                  <th>Plugin</th>
+                  <th>Customer</th>
+                  <th>Amount Paid</th>
+                  <th>Date Purchased</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {orders.map(order => (
-                  <tr key={order.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4 font-medium text-text-primary">{order.plugin?.name || 'N/A'}</td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{order.customer?.name || 'N/A'}</td>
-                    <td className="px-6 py-4 font-medium">{formatCurrency(order.amount)}</td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(order.created_at)}</td>
+                  <tr key={order.id}>
+                    <td>
+                      <span className="font-mono text-xs text-text-secondary bg-bg-base/50 px-2 py-0.5 rounded border border-border-subtle">
+                        {order.id.slice(0, 8)}...
+                      </span>
+                    </td>
+                    <td className="font-semibold text-text-primary">{order.plugin?.name || 'WordPress Plugin'}</td>
+                    <td className="text-text-secondary">{order.customer?.name || 'N/A'}</td>
+                    <td className="font-bold font-mono text-accent">{formatCurrency(order.amount)}</td>
+                    <td>{formatDate(order.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -118,4 +161,4 @@ export default function DeveloperRevenue() {
       </div>
     </div>
   );
-}
+}

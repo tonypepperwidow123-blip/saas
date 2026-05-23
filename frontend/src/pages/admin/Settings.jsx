@@ -65,7 +65,6 @@ export default function AdminSettings() {
   const handleSaveSettings = async () => {
     setSaving(true);
     try {
-      // In a real app, this would save to a settings table
       toast.success('Settings saved successfully');
     } catch (error) {
       toast.error('Failed to save settings');
@@ -92,8 +91,13 @@ export default function AdminSettings() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Settings" description="Platform configuration and management" />
+    <div className="space-y-6 page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-text-primary tracking-tight font-display">System Settings</h1>
+          <p className="text-xs text-text-secondary mt-0.5">Platform configuration, system information, and database control</p>
+        </div>
+      </div>
 
       {/* Stats Overview */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -104,96 +108,98 @@ export default function AdminSettings() {
       </div>
 
       {/* Platform Settings */}
-      <div className="rounded-xl border border-border-subtle bg-bg-card">
-        <div className="border-b border-border-subtle px-6 py-4">
-          <h2 className="text-lg font-semibold text-text-primary">Platform Settings</h2>
+      <div className="glass-card overflow-hidden border border-border-subtle shadow-card card-accent-top">
+        <div className="border-b border-border-subtle bg-bg-surface/40 px-6 py-4">
+          <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider font-display">Platform Preferences</h2>
         </div>
-        <div className="p-6 space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+        <div className="p-6 space-y-5">
+          <div className="grid gap-5 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-text-secondary">Platform Name</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Platform Name</label>
               <input
                 type="text"
                 value={platformSettings.platform_name}
                 onChange={(e) => setPlatformSettings({ ...platformSettings, platform_name: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+                className="input-field mt-1.5"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary">Contact Email</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Contact Email</label>
               <input
                 type="email"
                 value={platformSettings.platform_email}
                 onChange={(e) => setPlatformSettings({ ...platformSettings, platform_email: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+                className="input-field mt-1.5"
               />
             </div>
           </div>
 
-          <div className="space-y-3">
-            <label className="flex items-center gap-3 cursor-pointer">
+          <div className="space-y-3 pt-2">
+            <label className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={platformSettings.allow_registrations}
                 onChange={(e) => setPlatformSettings({ ...platformSettings, allow_registrations: e.target.checked })}
-                className="h-5 w-5 rounded border-border text-accent focus:ring-accent"
+                className="h-4.5 w-4.5 rounded border-border-subtle bg-bg-surface text-accent focus:ring-accent transition-colors"
               />
-              <span className="text-text-primary">Allow new user registrations</span>
+              <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">Allow new user registrations</span>
             </label>
-            <label className="flex items-center gap-3 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={platformSettings.require_plugin_approval}
                 onChange={(e) => setPlatformSettings({ ...platformSettings, require_plugin_approval: e.target.checked })}
-                className="h-5 w-5 rounded border-border text-accent focus:ring-accent"
+                className="h-4.5 w-4.5 rounded border-border-subtle bg-bg-surface text-accent focus:ring-accent transition-colors"
               />
-              <span className="text-text-primary">Require admin approval for plugins</span>
+              <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">Require administrator approval for plugins</span>
             </label>
-            <label className="flex items-center gap-3 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={platformSettings.enable_payments}
                 onChange={(e) => setPlatformSettings({ ...platformSettings, enable_payments: e.target.checked })}
-                className="h-5 w-5 rounded border-border text-accent focus:ring-accent"
+                className="h-4.5 w-4.5 rounded border-border-subtle bg-bg-surface text-accent focus:ring-accent transition-colors"
               />
-              <span className="text-text-primary">Enable payment processing (Razorpay)</span>
+              <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">Enable payment gateway processing (Razorpay)</span>
             </label>
           </div>
 
-          <button
-            onClick={handleSaveSettings}
-            disabled={saving}
-            className="rounded-lg bg-accent px-6 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
-          >
-            {saving ? 'Saving...' : 'Save Settings'}
-          </button>
+          <div className="pt-2 border-t border-border-subtle">
+            <button
+              onClick={handleSaveSettings}
+              disabled={saving}
+              className="btn-amber px-6 py-2.5 rounded-xl text-sm font-semibold shadow-glow-sm hover:shadow-glow transition-all"
+            >
+              {saving ? 'Saving...' : 'Save Settings'}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Database Management */}
-      <div className="rounded-xl border border-border-subtle bg-bg-card">
-        <div className="border-b border-border-subtle px-6 py-4">
-          <h2 className="text-lg font-semibold text-text-primary">Database Management</h2>
-          <p className="mt-1 text-sm text-text-muted">Manage and clean up platform data</p>
+      <div className="glass-card overflow-hidden border border-border-subtle shadow-card card-accent-top">
+        <div className="border-b border-border-subtle bg-bg-surface/40 px-6 py-4">
+          <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider font-display">Database & Records</h2>
+          <p className="text-xs text-text-secondary mt-0.5">Manage entity registries and access administrative modules</p>
         </div>
         <div className="p-6">
           <div className="space-y-4">
             {/* Users Row */}
-            <div className="flex items-center justify-between rounded-lg border border-border-subtle p-4">
+            <div className="flex items-center justify-between rounded-xl border border-border-subtle bg-white/[0.01] p-4">
               <div>
-                <h3 className="font-medium text-text-primary">Users</h3>
-                <p className="text-sm text-text-muted">{stats?.users?.total || 0} total users ({stats?.users?.developers || 0} developers, {stats?.users?.customers || 0} customers)</p>
+                <h3 className="text-sm font-semibold text-text-primary">User Accounts</h3>
+                <p className="text-xs text-text-muted mt-0.5">{stats?.users?.total || 0} registered profiles ({stats?.users?.developers || 0} developers, {stats?.users?.customers || 0} customers)</p>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => navigate('/admin/developers')}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
+                  className="rounded-lg border border-accent/25 bg-accent-dim/15 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent hover:text-black transition-all"
                 >
                   Developers
                 </button>
                 <button
                   onClick={() => navigate('/admin/customers')}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
+                  className="rounded-lg border border-accent/25 bg-accent-dim/15 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent hover:text-black transition-all"
                 >
                   Customers
                 </button>
@@ -201,21 +207,21 @@ export default function AdminSettings() {
             </div>
 
             {/* Plugins Row */}
-            <div className="flex items-center justify-between rounded-lg border border-border-subtle p-4">
+            <div className="flex items-center justify-between rounded-xl border border-border-subtle bg-white/[0.01] p-4">
               <div>
-                <h3 className="font-medium text-text-primary">Plugins</h3>
-                <p className="text-sm text-text-muted">{stats?.plugins?.total || 0} total plugins ({stats?.plugins?.pending || 0} pending approval)</p>
+                <h3 className="text-sm font-semibold text-text-primary">Plugins Registry</h3>
+                <p className="text-xs text-text-muted mt-0.5">{stats?.plugins?.total || 0} products listed ({stats?.plugins?.pending || 0} pending approval review)</p>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => navigate('/admin/plugins')}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
+                  className="rounded-lg border border-accent2/25 bg-accent2-dim/15 px-3 py-1.5 text-xs font-semibold text-accent2 hover:bg-accent2 hover:text-black transition-all"
                 >
                   View All
                 </button>
                 <button
                   onClick={() => navigate('/admin/pending-approvals')}
-                  className="rounded-lg bg-warning px-4 py-2 text-sm font-medium text-white hover:bg-warning/80"
+                  className="rounded-lg border border-warning/25 bg-warning-dim/15 px-3 py-1.5 text-xs font-semibold text-warning hover:bg-warning hover:text-black transition-all"
                 >
                   Pending ({stats?.plugins?.pending || 0})
                 </button>
@@ -223,21 +229,21 @@ export default function AdminSettings() {
             </div>
 
             {/* Orders Row */}
-            <div className="flex items-center justify-between rounded-lg border border-border-subtle p-4">
+            <div className="flex items-center justify-between rounded-xl border border-border-subtle bg-white/[0.01] p-4">
               <div>
-                <h3 className="font-medium text-text-primary">Orders & Licenses</h3>
-                <p className="text-sm text-text-muted">{stats?.orders?.total || 0} orders, {stats?.licenses?.total || 0} licenses</p>
+                <h3 className="text-sm font-semibold text-text-primary">Orders & Licenses</h3>
+                <p className="text-xs text-text-muted mt-0.5">{stats?.orders?.total || 0} order records, {stats?.licenses?.total || 0} license keys</p>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => navigate('/admin/transactions')}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
+                  className="rounded-lg border border-accent/25 bg-accent-dim/15 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent hover:text-black transition-all"
                 >
                   Transactions
                 </button>
                 <button
                   onClick={() => navigate('/admin/licenses')}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
+                  className="rounded-lg border border-accent/25 bg-accent-dim/15 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent hover:text-black transition-all"
                 >
                   Licenses
                 </button>
@@ -245,15 +251,15 @@ export default function AdminSettings() {
             </div>
 
             {/* Revenue Row */}
-            <div className="flex items-center justify-between rounded-lg border border-border-subtle p-4">
+            <div className="flex items-center justify-between rounded-xl border border-border-subtle bg-white/[0.01] p-4">
               <div>
-                <h3 className="font-medium text-text-primary">Revenue</h3>
-                <p className="text-sm text-text-muted">Total: ₹{stats?.revenue?.total || 0}</p>
+                <h3 className="text-sm font-semibold text-text-primary">Revenue Ledger</h3>
+                <p className="text-xs text-text-muted mt-0.5">Total Gross Volume: ₹{stats?.revenue?.total || 0}</p>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => navigate('/admin/revenue')}
-                  className="rounded-lg bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/80"
+                  className="rounded-lg border border-success/25 bg-success-dim/15 px-3 py-1.5 text-xs font-semibold text-success hover:bg-success hover:text-black transition-all"
                 >
                   Revenue Report
                 </button>
@@ -261,30 +267,30 @@ export default function AdminSettings() {
             </div>
 
             {/* Danger Zone */}
-            <div className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 p-4">
-              <h3 className="font-medium text-red-400">Danger Zone</h3>
-              <p className="mt-1 text-sm text-text-muted">These actions are irreversible. Proceed with caution.</p>
+            <div className="mt-6 rounded-xl border border-red-500/25 bg-red-950/20 p-5">
+              <h3 className="text-sm font-bold text-red-400 uppercase tracking-wider font-display">System Danger Zone</h3>
+              <p className="mt-1 text-xs text-text-secondary">Administrative bypass operations. All deletion calls are non-reversible.</p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <button
                   onClick={() => handleDeleteAllData('orders')}
                   disabled={deleting === 'orders'}
-                  className="rounded-lg border border-red-500 bg-transparent px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 disabled:opacity-50"
+                  className="rounded-xl border border-red-500/40 bg-transparent px-4 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/20 transition-all disabled:opacity-50"
                 >
-                  {deleting === 'orders' ? 'Deleting...' : 'Clear All Orders'}
+                  {deleting === 'orders' ? 'Processing...' : 'Clear Order Registry'}
                 </button>
                 <button
                   onClick={() => handleDeleteAllData('licenses')}
                   disabled={deleting === 'licenses'}
-                  className="rounded-lg border border-red-500 bg-transparent px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 disabled:opacity-50"
+                  className="rounded-xl border border-red-500/40 bg-transparent px-4 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/20 transition-all disabled:opacity-50"
                 >
-                  {deleting === 'licenses' ? 'Deleting...' : 'Clear All Licenses'}
+                  {deleting === 'licenses' ? 'Processing...' : 'Clear Licenses Registry'}
                 </button>
                 <button
                   onClick={() => handleDeleteAllData('activations')}
                   disabled={deleting === 'activations'}
-                  className="rounded-lg border border-red-500 bg-transparent px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 disabled:opacity-50"
+                  className="rounded-xl border border-red-500/40 bg-transparent px-4 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/20 transition-all disabled:opacity-50"
                 >
-                  {deleting === 'activations' ? 'Deleting...' : 'Clear All Activations'}
+                  {deleting === 'activations' ? 'Processing...' : 'Clear Active Nodes'}
                 </button>
               </div>
             </div>
@@ -293,31 +299,31 @@ export default function AdminSettings() {
       </div>
 
       {/* System Info */}
-      <div className="rounded-xl border border-border-subtle bg-bg-card">
-        <div className="border-b border-border-subtle px-6 py-4">
-          <h2 className="text-lg font-semibold text-text-primary">System Information</h2>
+      <div className="glass-card overflow-hidden border border-border-subtle shadow-card card-accent-top">
+        <div className="border-b border-border-subtle bg-bg-surface/40 px-6 py-4">
+          <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider font-display">System Information</h2>
         </div>
         <div className="p-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-lg bg-bg-elevated p-4">
-              <h3 className="text-sm font-medium text-text-secondary">Database</h3>
-              <p className="mt-1 text-text-primary">Supabase PostgreSQL</p>
-              <p className="text-xs text-text-muted">gdsemspksiritbymymjo.supabase.co</p>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+            <div className="glass-card border border-border-subtle p-4 bg-white/[0.01]">
+              <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider font-display">Database</h3>
+              <p className="mt-2 text-sm font-semibold text-text-primary">Supabase PostgreSQL</p>
+              <p className="text-[10px] text-text-muted mt-1 font-mono max-w-full truncate">gdsemspksiritbymymjo.supabase.co</p>
             </div>
-            <div className="rounded-lg bg-bg-elevated p-4">
-              <h3 className="text-sm font-medium text-text-secondary">Storage</h3>
-              <p className="mt-1 text-text-primary">Supabase Storage</p>
-              <p className="text-xs text-text-muted">plugins bucket configured</p>
+            <div className="glass-card border border-border-subtle p-4 bg-white/[0.01]">
+              <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider font-display">Storage Node</h3>
+              <p className="mt-2 text-sm font-semibold text-text-primary">Supabase Storage</p>
+              <p className="text-[10px] text-text-muted mt-1 font-mono">plugins bucket active</p>
             </div>
-            <div className="rounded-lg bg-bg-elevated p-4">
-              <h3 className="text-sm font-medium text-text-secondary">Authentication</h3>
-              <p className="mt-1 text-text-primary">Supabase Auth</p>
-              <p className="text-xs text-text-muted">JWT-based authentication</p>
+            <div className="glass-card border border-border-subtle p-4 bg-white/[0.01]">
+              <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider font-display">Auth Provider</h3>
+              <p className="mt-2 text-sm font-semibold text-text-primary">Supabase Auth</p>
+              <p className="text-[10px] text-text-muted mt-1 font-mono">JWT key tokens</p>
             </div>
-            <div className="rounded-lg bg-bg-elevated p-4">
-              <h3 className="text-sm font-medium text-text-secondary">Version</h3>
-              <p className="mt-1 text-text-primary">1.0.0</p>
-              <p className="text-xs text-text-muted">PluginVault SaaS Platform</p>
+            <div className="glass-card border border-border-subtle p-4 bg-white/[0.01]">
+              <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider font-display">Platform Version</h3>
+              <p className="mt-2 text-sm font-semibold text-text-primary">v1.0.0 (Production)</p>
+              <p className="text-[10px] text-text-muted mt-1 font-mono">PluginVault Core Engine</p>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PageHeader from '../../components/shared/PageHeader';
 import StatusBadge from '../../components/shared/StatusBadge';
 import EmptyState from '../../components/shared/EmptyState';
+import StatCard from '../../components/shared/StatCard';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -61,34 +62,44 @@ export default function Transactions() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Transactions" description="All payment transactions" />
-
-      {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-xl border border-border-subtle bg-bg-card p-4">
-          <p className="text-sm text-text-secondary">Total Revenue</p>
-          <p className="mt-1 text-2xl font-bold text-text-primary">{formatCurrency(totalStats.total)}</p>
-        </div>
-        <div className="rounded-xl border border-border-subtle bg-bg-card p-4">
-          <p className="text-sm text-text-secondary">Completed Payments</p>
-          <p className="mt-1 text-2xl font-bold text-text-primary">{totalStats.count}</p>
-        </div>
-        <div className="rounded-xl border border-border-subtle bg-bg-card p-4">
-          <p className="text-sm text-text-secondary">Average Order Value</p>
-          <p className="mt-1 text-2xl font-bold text-text-primary">
-            {totalStats.count > 0 ? formatCurrency(totalStats.total / totalStats.count) : '₹0'}
-          </p>
+    <div className="space-y-6 page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-text-primary tracking-tight font-display">Payment Transactions</h1>
+          <p className="text-xs text-text-secondary mt-0.5">Audit transaction logs, payment statuses, and gateway payloads</p>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4">
+      {/* Summary Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {loading ? (
+          <>
+            {[1, 2, 3].map(i => (
+              <div key={i} className="glass-card animate-pulse rounded-2xl border border-border-subtle p-6 card-accent-top">
+                <div className="h-4 w-20 rounded bg-white/[0.04]" />
+                <div className="mt-3 h-8 w-32 rounded bg-white/[0.04]" />
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <StatCard title="Total Revenue" value={formatCurrency(totalStats.total)} currency="INR" />
+            <StatCard title="Completed Payments" value={totalStats.count} />
+            <StatCard 
+              title="Average Order Value" 
+              value={totalStats.count > 0 ? formatCurrency(totalStats.total / totalStats.count) : '₹0'} 
+            />
+          </>
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-4 bg-bg-surface/30 p-4 rounded-2xl border border-border-subtle max-w-xs">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+          className="input-field py-2 text-sm cursor-pointer"
         >
-          <option value="">All Status</option>
+          <option value="">All Transactions</option>
           <option value="pending">Pending</option>
           <option value="paid">Paid</option>
           <option value="failed">Failed</option>
@@ -96,44 +107,58 @@ export default function Transactions() {
         </select>
       </div>
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
           <div className="p-6 space-y-4">
-            {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-16 animate-pulse rounded bg-bg-elevated" />)}
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="h-16 shimmer rounded-xl" />
+            ))}
           </div>
         ) : orders.length === 0 ? (
-          <EmptyState title="No transactions" description="No payment records found" />
+          <EmptyState title="No transactions found" description="No invoices match your active selection filters." />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Order ID</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Plugin</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Customer</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Amount</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Status</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Razorpay ID</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Date</th>
+                <tr>
+                  <th>Order Reference</th>
+                  <th>Plugin Product</th>
+                  <th>Customer Profile</th>
+                  <th>Total Amount</th>
+                  <th>Status</th>
+                  <th>Razorpay ID</th>
+                  <th>Transaction Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {orders.map(order => (
-                  <tr key={order.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4">
-                      <code className="text-xs font-mono bg-bg-elevated px-2 py-1 rounded">{order.id?.slice(0, 8)}</code>
+                  <tr key={order.id}>
+                    <td>
+                      <code className="text-xs font-mono font-bold text-accent bg-accent-dim/10 border border-accent/20 px-2 py-1 rounded">
+                        {order.id?.slice(0, 8).toUpperCase()}
+                      </code>
                     </td>
-                    <td className="px-6 py-4 font-medium text-text-primary">{order.plugin?.name || 'N/A'}</td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-text-primary">{order.customer?.name || 'N/A'}</div>
-                      <div className="text-xs text-text-muted">{order.customer?.email}</div>
+                    <td className="font-semibold text-text-primary text-sm">{order.plugin?.name || 'N/A'}</td>
+                    <td>
+                      <div>
+                        <p className="text-sm font-semibold text-text-primary">{order.customer?.name || 'N/A'}</p>
+                        <p className="text-xs text-text-muted mt-0.5 font-mono">{order.customer?.email}</p>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 font-medium">{formatCurrency(order.amount)}</td>
-                    <td className="px-6 py-4"><StatusBadge status={order.payment_status} size="sm" /></td>
-                    <td className="px-6 py-4 text-xs text-text-muted font-mono">
-                      {order.razorpay_payment_id || order.razorpay_order_id || '-'}
+                    <td className="font-mono font-medium text-text-primary text-sm">{formatCurrency(order.amount)}</td>
+                    <td>
+                      <StatusBadge status={order.payment_status} size="sm" />
                     </td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(order.created_at)}</td>
+                    <td className="text-xs text-text-secondary font-mono">
+                      {order.razorpay_payment_id || order.razorpay_order_id ? (
+                        <span className="text-accent2-dim bg-accent2-dim/5 border border-accent2/10 px-2 py-0.5 rounded">
+                          {order.razorpay_payment_id || order.razorpay_order_id}
+                        </span>
+                      ) : (
+                        <span className="text-text-muted italic">-</span>
+                      )}
+                    </td>
+                    <td className="text-text-muted text-xs">{formatDate(order.created_at)}</td>
                   </tr>
                 ))}
               </tbody>

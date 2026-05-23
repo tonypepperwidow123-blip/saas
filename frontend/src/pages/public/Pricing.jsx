@@ -1,145 +1,283 @@
 import { Link } from 'react-router-dom';
 
+const plans = [
+  {
+    id: 'free',
+    name: 'Free',
+    price: '₹0',
+    period: '',
+    description: 'Perfect for getting started.',
+    features: [
+      'Upload up to 5 plugins',
+      'Unlimited plugin updates',
+      'Automated license generation',
+      'Secure ZIP file hosting',
+      'Developer analytics dashboard',
+    ],
+    cta: 'Start for Free',
+    ctaHref: '/register',
+    highlight: false,
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: '₹1,000',
+    period: '/ mo',
+    description: 'For growing plugin businesses.',
+    features: [
+      'Upload up to 10 plugins',
+      'Unlimited plugin updates',
+      'Automated license generation',
+      'Secure ZIP file hosting',
+      'Developer analytics dashboard',
+    ],
+    cta: 'Get Pro',
+    ctaHref: '/register',
+    highlight: true,
+    badge: 'Most Popular',
+  },
+  {
+    id: 'business',
+    name: 'Business',
+    price: '₹1,500',
+    period: '/ mo',
+    description: 'For advanced agencies and studios.',
+    features: [
+      'Upload up to 20 plugins',
+      'Unlimited plugin updates',
+      'Automated license generation',
+      'Secure ZIP file hosting',
+      'Developer analytics dashboard',
+      'Priority Support',
+    ],
+    cta: 'Get Business',
+    ctaHref: '/register',
+    highlight: false,
+  },
+];
+
+function CheckIcon() {
+  return (
+    <svg style={{ width: '14px', height: '14px', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+    </svg>
+  );
+}
+
 export default function Pricing() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-text-primary">
-          Simple, transparent pricing
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '64px 24px' }}>
+
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: '8px',
+          padding: '4px 14px', borderRadius: '20px',
+          background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)',
+          marginBottom: '20px',
+        }}>
+          <span style={{ fontSize: '12px', fontWeight: '600', color: '#f59e0b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.04em' }}>
+            Simple, Transparent Pricing
+          </span>
+        </div>
+        <h1 style={{
+          fontFamily: 'Syne, sans-serif',
+          fontWeight: '800',
+          fontSize: 'clamp(28px, 4vw, 48px)',
+          letterSpacing: '-0.04em',
+          color: 'var(--text-primary)',
+          marginBottom: '14px',
+        }}>
+          Choose your plan
         </h1>
-        <p className="mt-4 text-lg text-text-secondary">
+        <p style={{ fontSize: '16px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', maxWidth: '440px', margin: '0 auto', lineHeight: '1.7' }}>
           Choose the perfect plan to manage and distribute your WordPress plugins.
         </p>
       </div>
 
-      {/* Developer Plans Grid */}
-      <div className="mt-12 grid gap-8 lg:grid-cols-3">
-        {/* Free Plan */}
-        <div className="rounded-2xl border border-border-subtle bg-bg-card p-8 flex flex-col">
-          <h2 className="text-xl font-semibold text-text-primary">Free</h2>
-          <p className="mt-2 text-sm text-text-secondary">
-            Perfect for getting started.
-          </p>
-          <div className="mt-6 mb-8">
-            <span className="text-4xl font-bold text-text-primary">₹0</span>
-          </div>
-          <ul className="space-y-4 flex-1">
-            {[
-              'Upload up to 5 plugins',
-              'Unlimited plugin updates',
-              'Automated license generation',
-              'Secure ZIP file hosting',
-              'Developer analytics dashboard',
-            ].map((feature, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <svg className="h-5 w-5 text-success shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-sm text-text-secondary">{feature}</span>
-              </li>
-            ))}
-          </ul>
-          <Link
-            to="/register"
-            className="mt-8 block w-full rounded-lg border border-accent bg-transparent px-6 py-3 text-center text-sm font-medium text-accent transition-colors hover:bg-accent hover:text-white"
+      {/* Plans Grid */}
+      <div style={{ display: 'grid', gap: '20px', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', alignItems: 'start' }}>
+        {plans.map((plan, index) => (
+          <div
+            key={plan.id}
+            style={{
+              borderRadius: '20px',
+              border: plan.highlight ? '1px solid rgba(245,158,11,0.35)' : '1px solid rgba(255,255,255,0.055)',
+              background: plan.highlight
+                ? 'linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(255,255,255,0.02) 100%)'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%)',
+              padding: '32px',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative',
+              boxShadow: plan.highlight ? '0 0 40px rgba(245,158,11,0.12)' : 'none',
+              transform: plan.highlight ? 'scale(1.02)' : 'none',
+              animation: `fade-in 0.5s ${index * 0.1}s ease forwards`,
+              opacity: 0,
+            }}
           >
-            Start for Free
-          </Link>
-        </div>
+            {/* Most Popular badge */}
+            {plan.badge && (
+              <div style={{
+                position: 'absolute',
+                top: '-14px', left: '50%', transform: 'translateX(-50%)',
+                padding: '4px 14px',
+                borderRadius: '20px',
+                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                fontSize: '11px',
+                fontWeight: '700',
+                color: '#000',
+                fontFamily: 'DM Sans, sans-serif',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 4px 12px rgba(245,158,11,0.4)',
+              }}>
+                {plan.badge}
+              </div>
+            )}
 
-        {/* Pro Plan */}
-        <div className="rounded-2xl border-2 border-accent bg-bg-card p-8 flex flex-col relative transform md:-translate-y-2 shadow-xl shadow-accent/10">
-          <div className="absolute -top-4 inset-x-0 flex justify-center">
-            <span className="bg-accent text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
-              Most Popular
-            </span>
-          </div>
-          <h2 className="text-xl font-semibold text-text-primary">Pro</h2>
-          <p className="mt-2 text-sm text-text-secondary">
-            For growing plugin businesses.
-          </p>
-          <div className="mt-6 mb-8">
-            <span className="text-4xl font-bold text-text-primary">₹1,000</span>
-          </div>
-          <ul className="space-y-4 flex-1">
-            {[
-              'Upload up to 10 plugins',
-              'Unlimited plugin updates',
-              'Automated license generation',
-              'Secure ZIP file hosting',
-              'Developer analytics dashboard',
-            ].map((feature, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <svg className="h-5 w-5 text-success shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-sm text-text-secondary">{feature}</span>
-              </li>
-            ))}
-          </ul>
-          <Link
-            to="/register"
-            className="mt-8 block w-full rounded-lg bg-accent px-6 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-accent-hover"
-          >
-            Get Pro
-          </Link>
-        </div>
+            {/* Plan name */}
+            <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', fontFamily: 'DM Sans, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>
+              {plan.name}
+            </p>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', marginBottom: '20px' }}>
+              {plan.description}
+            </p>
 
-        {/* Business Plan */}
-        <div className="rounded-2xl border border-border-subtle bg-bg-card p-8 flex flex-col">
-          <h2 className="text-xl font-semibold text-text-primary">Business</h2>
-          <p className="mt-2 text-sm text-text-secondary">
-            For advanced agencies and studios.
-          </p>
-          <div className="mt-6 mb-8">
-            <span className="text-4xl font-bold text-text-primary">₹1,500</span>
-            <span className="text-text-secondary"> / mo</span>
+            {/* Price */}
+            <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+              <span style={{
+                fontFamily: 'Syne, sans-serif',
+                fontWeight: '800',
+                fontSize: '40px',
+                letterSpacing: '-0.04em',
+                color: plan.highlight ? '#f59e0b' : 'var(--text-primary)',
+              }}>
+                {plan.price}
+              </span>
+              {plan.period && (
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'DM Sans, sans-serif' }}>
+                  {plan.period}
+                </span>
+              )}
+            </div>
+
+            {/* Features */}
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, marginBottom: '28px' }}>
+              {plan.features.map((feature, i) => (
+                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif' }}>
+                  <span style={{ color: '#10b981', flexShrink: 0 }}>
+                    <CheckIcon />
+                  </span>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <Link
+              to={plan.ctaHref}
+              style={{
+                display: 'block',
+                textAlign: 'center',
+                padding: '12px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '700',
+                fontFamily: 'DM Sans, sans-serif',
+                textDecoration: 'none',
+                transition: 'all 0.2s ease',
+                ...(plan.highlight
+                  ? {
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: '#000',
+                    boxShadow: '0 0 20px rgba(245,158,11,0.3)',
+                  }
+                  : {
+                    background: 'transparent',
+                    color: 'var(--text-primary)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                  }
+                ),
+              }}
+              onMouseEnter={e => {
+                if (plan.highlight) {
+                  e.currentTarget.style.boxShadow = '0 0 32px rgba(245,158,11,0.5)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                } else {
+                  e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)';
+                  e.currentTarget.style.background = 'rgba(245,158,11,0.06)';
+                  e.currentTarget.style.color = '#f59e0b';
+                }
+              }}
+              onMouseLeave={e => {
+                if (plan.highlight) {
+                  e.currentTarget.style.boxShadow = '0 0 20px rgba(245,158,11,0.3)';
+                  e.currentTarget.style.transform = 'none';
+                } else {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }
+              }}
+            >
+              {plan.cta}
+            </Link>
           </div>
-          <ul className="space-y-4 flex-1">
-            {[
-              'Upload up to 20 plugins',
-              'Unlimited plugin updates',
-              'Automated license generation',
-              'Secure ZIP file hosting',
-              'Developer analytics dashboard',
-              'Priority Support',
-            ].map((feature, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <svg className="h-5 w-5 text-success shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-sm text-text-secondary">{feature}</span>
-              </li>
-            ))}
-          </ul>
-          <Link
-            to="/register"
-            className="mt-8 block w-full rounded-lg border border-border-subtle bg-bg-elevated px-6 py-3 text-center text-sm font-medium text-text-primary transition-colors hover:bg-border-subtle"
-          >
-            Get Business
-          </Link>
-        </div>
+        ))}
       </div>
 
-      {/* Customer Plan */}
-      <div className="mt-16 rounded-2xl border border-border-subtle bg-bg-card p-8 max-w-3xl mx-auto text-center">
-        <h2 className="text-xl font-semibold text-text-primary">Are you a Customer?</h2>
-        <p className="mt-2 text-text-secondary">
-          Purchase and manage licenses for WordPress plugins across your sites completely free of platform charges.
+      {/* Customer section */}
+      <div style={{
+        marginTop: '48px',
+        borderRadius: '20px',
+        border: '1px solid rgba(6,182,212,0.2)',
+        background: 'linear-gradient(135deg, rgba(6,182,212,0.05) 0%, rgba(255,255,255,0.01) 100%)',
+        padding: '40px',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          position: 'absolute', top: 0, left: '20%', right: '20%', height: '1px',
+          background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.4), transparent)',
+        }} />
+        <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: '800', fontSize: '22px', color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: '10px' }}>
+          Are you a Customer?
+        </h2>
+        <p style={{ color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', fontSize: '14px', maxWidth: '480px', margin: '0 auto 24px', lineHeight: '1.7' }}>
+          Purchase and manage licenses for WordPress plugins across your sites — completely free of platform charges.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-text-secondary">
-          <span className="flex items-center gap-2"><svg className="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Browse marketplace</span>
-          <span className="flex items-center gap-2"><svg className="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Manage license keys</span>
-          <span className="flex items-center gap-2"><svg className="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Secure downloads</span>
+        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '28px' }}>
+          {['Browse marketplace', 'Manage license keys', 'Secure downloads'].map((perk) => (
+            <span key={perk} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif' }}>
+              <span style={{ color: '#06b6d4' }}><CheckIcon /></span>
+              {perk}
+            </span>
+          ))}
         </div>
         <Link
           to="/register"
-          className="mt-8 inline-block rounded-lg border border-accent px-8 py-3 text-center text-sm font-medium text-accent transition-colors hover:bg-accent/10"
+          style={{
+            display: 'inline-block',
+            padding: '11px 28px',
+            borderRadius: '12px',
+            background: 'rgba(6,182,212,0.1)',
+            border: '1px solid rgba(6,182,212,0.3)',
+            color: '#06b6d4',
+            fontSize: '14px',
+            fontWeight: '700',
+            fontFamily: 'DM Sans, sans-serif',
+            textDecoration: 'none',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(6,182,212,0.15)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(6,182,212,0.2)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(6,182,212,0.1)'; e.currentTarget.style.boxShadow = 'none'; }}
         >
-          Create Customer Account
+          Create Customer Account →
         </Link>
       </div>
-
     </div>
   );
 }

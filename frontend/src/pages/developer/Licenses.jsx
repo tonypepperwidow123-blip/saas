@@ -27,48 +27,76 @@ export default function DeveloperLicenses() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Licenses" description="View all licenses for your plugins" />
+    <div className="space-y-6 page-enter">
+      <PageHeader 
+        title="Licenses" 
+        description="View and verify active customer license keys for your software products" 
+      />
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
-          <div className="p-6 space-y-4">{[1, 2, 3, 4, 5].map(i => <div key={i} className="h-16 animate-pulse rounded bg-bg-elevated" />)}</div>
+          <div className="p-6 space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 shimmer rounded-xl" />
+            ))}
+          </div>
         ) : licenses.length === 0 ? (
-          <EmptyState title="No licenses yet" description="Licenses are created when customers purchase your plugins" />
+          <EmptyState 
+            title="No licenses yet" 
+            description="Purchased plugin licenses will display here automatically." 
+          />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">License Key</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Plugin</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Customer</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Activated Sites</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Status</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Created</th>
+                <tr>
+                  <th>License Key</th>
+                  <th>Plugin</th>
+                  <th>Customer</th>
+                  <th>Activated Sites</th>
+                  <th>Status</th>
+                  <th>Created Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {licenses.map(lic => (
-                  <tr key={lic.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4">
-                      <code className="text-sm font-mono text-accent">{lic.license_key}</code>
+                  <tr key={lic.id}>
+                    <td>
+                      <code className="text-xs font-mono font-semibold text-accent bg-accent-dim/20 px-2.5 py-1 rounded border border-border-accent/30 shadow-inner-glow">
+                        {lic.license_key}
+                      </code>
                     </td>
-                    <td className="px-6 py-4 text-sm text-text-primary">{lic.plugin?.name || 'N/A'}</td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{lic.customer?.name || 'N/A'}</td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">
+                    <td className="font-semibold text-text-primary">
+                      {lic.plugin?.name || 'N/A'}
+                    </td>
+                    <td className="text-text-secondary">
+                      {lic.customer?.name || 'N/A'}
+                    </td>
+                    <td>
                       {lic.activations?.length > 0 ? (
-                        <ul className="list-disc list-inside">
+                        <div className="flex flex-col gap-1">
                           {lic.activations.map((a, i) => (
-                            a.site_url ? <li key={i}><a href={a.site_url} target="_blank" rel="noreferrer" className="hover:text-accent truncate inline-block align-bottom max-w-[150px]">{a.site_url}</a></li> : null
+                            a.site_url ? (
+                              <a 
+                                key={i} 
+                                href={a.site_url} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="text-xs font-mono text-text-secondary hover:text-accent truncate hover:underline max-w-[160px]"
+                              >
+                                {a.site_url.replace(/^https?:\/\//, '')}
+                              </a>
+                            ) : null
                           ))}
-                        </ul>
+                        </div>
                       ) : (
-                        <span className="text-text-muted italic">None</span>
+                        <span className="text-text-muted italic text-xs">No sites activated</span>
                       )}
                     </td>
-                    <td className="px-6 py-4"><StatusBadge status={lic.status} size="sm" /></td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(lic.created_at)}</td>
+                    <td>
+                      <StatusBadge status={lic.status} size="sm" />
+                    </td>
+                    <td>{formatDate(lic.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -78,4 +106,4 @@ export default function DeveloperLicenses() {
       </div>
     </div>
   );
-}
+}

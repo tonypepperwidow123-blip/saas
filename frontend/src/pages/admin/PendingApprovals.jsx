@@ -44,14 +44,22 @@ const supabaseMutate = async (endpoint, method = 'GET', body = null) => {
   }
 };
 
+function SkeletonCard() {
+  return (
+    <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+      <div style={{ height: '18px', width: '200px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', marginBottom: '8px', animation: 'shimmer 1.8s ease infinite' }} />
+      <div style={{ height: '12px', width: '140px', borderRadius: '5px', background: 'rgba(255,255,255,0.04)', marginBottom: '12px', animation: 'shimmer 1.8s ease infinite' }} />
+      <div style={{ height: '80px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', animation: 'shimmer 1.8s ease infinite' }} />
+    </div>
+  );
+}
+
 export default function PendingApprovals() {
   const [plugins, setPlugins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
 
-  useEffect(() => {
-    fetchPendingPlugins();
-  }, []);
+  useEffect(() => { fetchPendingPlugins(); }, []);
 
   const fetchPendingPlugins = async () => {
     try {
@@ -81,10 +89,7 @@ export default function PendingApprovals() {
 
   const handleReject = async (id) => {
     const reason = prompt('Enter rejection reason (min 10 characters):');
-    if (!reason || reason.length < 10) {
-      toast.error('Rejection reason must be at least 10 characters');
-      return;
-    }
+    if (!reason || reason.length < 10) { toast.error('Rejection reason must be at least 10 characters'); return; }
     setActionLoading(id);
     try {
       const result = await supabaseMutate(`/plugins?id=eq.${id}`, 'PATCH', { status: 'rejected', rejection_note: reason });
@@ -99,55 +104,98 @@ export default function PendingApprovals() {
   };
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fade-in 0.4s ease forwards' }}>
       <PageHeader title="Pending Approvals" description="Review and approve plugin submissions" />
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div style={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.055)', background: 'linear-gradient(135deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.01) 100%)', overflow: 'hidden' }}>
         {loading ? (
-          <div className="p-6 space-y-4">
-            {[1, 2, 3].map(i => <div key={i} className="h-24 animate-pulse rounded bg-bg-elevated" />)}
-          </div>
+          <><SkeletonCard /><SkeletonCard /><SkeletonCard /></>
         ) : plugins.length === 0 ? (
           <EmptyState title="No pending approvals" description="All plugin submissions have been reviewed" />
         ) : (
-          <div className="divide-y divide-border-subtle">
-            {plugins.map(plugin => (
-              <div key={plugin.id} className="p-6">
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold text-text-primary">{plugin.name}</h3>
-                      <StatusBadge status={plugin.status} size="sm" />
-                    </div>
-                    <p className="mt-1 text-sm text-text-muted">by {plugin.developer?.name || 'Unknown'}</p>
-                    <p className="mt-2 text-text-secondary">{plugin.short_desc || plugin.description?.substring(0, 150)}</p>
-                    <div className="mt-3 flex flex-wrap gap-4 text-sm text-text-muted">
-                      <span>Version: {plugin.current_version || '1.0.0'}</span>
-                      <span>Price: {plugin.price === 0 ? 'Free' : `₹${plugin.price}`}</span>
-                      <span>Category: {plugin.category || 'Uncategorized'}</span>
-                      <span>Submitted: {formatDate(plugin.created_at)}</span>
-                    </div>
+          plugins.map((plugin) => (
+            <div
+              key={plugin.id}
+              style={{
+                padding: '24px',
+                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                transition: 'background 0.15s ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.015)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+            >
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+                {/* Plugin info */}
+                <div style={{ flex: 1, minWidth: '240px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                    <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: '700', fontSize: '16px', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                      {plugin.name}
+                    </h3>
+                    <StatusBadge status={plugin.status} size="sm" />
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleApprove(plugin.id)}
-                      disabled={actionLoading === plugin.id}
-                      className="rounded-lg bg-success px-6 py-2 text-sm font-medium text-white hover:bg-success/80 disabled:opacity-50"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleReject(plugin.id)}
-                      disabled={actionLoading === plugin.id}
-                      className="rounded-lg bg-danger px-6 py-2 text-sm font-medium text-white hover:bg-danger/80 disabled:opacity-50"
-                    >
-                      Reject
-                    </button>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'DM Sans, sans-serif', marginBottom: '10px' }}>
+                    by {plugin.developer?.name || 'Unknown Developer'}
+                  </p>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6', marginBottom: '12px', maxWidth: '560px' }}>
+                    {plugin.short_desc || plugin.description?.substring(0, 150)}
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                    {[
+                      { label: 'Version', value: plugin.current_version || '1.0.0' },
+                      { label: 'Price',   value: plugin.price === 0 ? 'Free' : `₹${plugin.price}` },
+                      { label: 'Category',value: plugin.category || 'Uncategorized' },
+                      { label: 'Submitted',value: formatDate(plugin.created_at) },
+                    ].map(({ label, value }) => (
+                      <div key={label}>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'DM Sans, sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '1px' }}>{label}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', fontWeight: '500' }}>{value}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
+
+                {/* Action buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+                  <button
+                    onClick={() => handleApprove(plugin.id)}
+                    disabled={actionLoading === plugin.id}
+                    style={{
+                      padding: '9px 20px', borderRadius: '10px',
+                      background: 'rgba(16,185,129,0.12)',
+                      border: '1px solid rgba(16,185,129,0.3)',
+                      color: '#10b981',
+                      fontSize: '13px', fontWeight: '600', fontFamily: 'DM Sans, sans-serif',
+                      cursor: actionLoading === plugin.id ? 'not-allowed' : 'pointer',
+                      opacity: actionLoading === plugin.id ? 0.5 : 1,
+                      transition: 'all 0.18s ease', whiteSpace: 'nowrap',
+                    }}
+                    onMouseEnter={e => { if (actionLoading !== plugin.id) { e.currentTarget.style.background = 'rgba(16,185,129,0.2)'; e.currentTarget.style.boxShadow = '0 0 14px rgba(16,185,129,0.2)'; }}}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; e.currentTarget.style.boxShadow = 'none'; }}
+                  >
+                    ✓ Approve
+                  </button>
+                  <button
+                    onClick={() => handleReject(plugin.id)}
+                    disabled={actionLoading === plugin.id}
+                    style={{
+                      padding: '9px 20px', borderRadius: '10px',
+                      background: 'rgba(244,63,94,0.1)',
+                      border: '1px solid rgba(244,63,94,0.25)',
+                      color: '#f43f5e',
+                      fontSize: '13px', fontWeight: '600', fontFamily: 'DM Sans, sans-serif',
+                      cursor: actionLoading === plugin.id ? 'not-allowed' : 'pointer',
+                      opacity: actionLoading === plugin.id ? 0.5 : 1,
+                      transition: 'all 0.18s ease', whiteSpace: 'nowrap',
+                    }}
+                    onMouseEnter={e => { if (actionLoading !== plugin.id) { e.currentTarget.style.background = 'rgba(244,63,94,0.15)'; }}}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(244,63,94,0.1)'; }}
+                  >
+                    ✕ Reject
+                  </button>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         )}
       </div>
     </div>

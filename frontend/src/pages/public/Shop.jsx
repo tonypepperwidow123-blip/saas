@@ -4,7 +4,7 @@ import { pluginService } from '../../services/plugin.service';
 import { StatCardSkeleton } from '../../components/shared/LoadingSkeleton';
 
 const categories = [
-  { value: '', label: 'All Categories' },
+  { value: '', label: 'All' },
   { value: 'seo', label: 'SEO' },
   { value: 'ecommerce', label: 'E-commerce' },
   { value: 'security', label: 'Security' },
@@ -15,37 +15,31 @@ const categories = [
   { value: 'other', label: 'Other' },
 ];
 
+const categoryEmojis = {
+  seo: '🔍', ecommerce: '🛒', security: '🔒', performance: '⚡',
+  forms: '📝', social: '📣', analytics: '📊', other: '📦', '': '✨',
+};
+
 export default function Shop() {
-  const [plugins, setPlugins] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [plugins, setPlugins]       = useState([]);
+  const [loading, setLoading]       = useState(true);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
-  const [page, setPage] = useState(1);
+  const [search, setSearch]         = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [category, setCategory]     = useState('');
+  const [page, setPage]             = useState(1);
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    // Debounce the fetch to prevent rapid requests
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-    debounceRef.current = setTimeout(() => {
-      fetchPlugins();
-    }, 300);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchPlugins(), 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [search, category, page]);
 
   const fetchPlugins = async () => {
     setLoading(true);
     try {
-      const response = await pluginService.getPlugins({
-        search,
-        category,
-        page,
-        limit: 12,
-      });
+      const response = await pluginService.getPlugins({ search, category, page, limit: 12 });
       if (response.success) {
         setPlugins(response.data.items);
         setPagination({
@@ -63,133 +57,206 @@ export default function Shop() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    setSearch(formData.get('search') || '');
+    setSearch(searchInput);
     setPage(1);
   };
 
-  const handleCategoryChange = (cat) => {
-    setCategory(cat);
-    setPage(1);
-  };
-
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const handleCategoryChange = (cat) => { setCategory(cat); setPage(1); };
+  const handlePageChange = (newPage) => { setPage(newPage); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px' }}>
+
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-text-primary">Plugin Marketplace</h1>
-        <p className="mt-2 text-text-secondary">
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+          <div style={{ width: '3px', height: '22px', borderRadius: '2px', background: 'linear-gradient(180deg, #f59e0b, #d97706)', boxShadow: '0 0 8px rgba(245,158,11,0.5)' }} />
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: '800', fontSize: '28px', color: 'var(--text-primary)', letterSpacing: '-0.04em' }}>
+            Plugin Marketplace
+          </h1>
+        </div>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', paddingLeft: '13px' }}>
           Discover WordPress plugins built by verified developers
         </p>
       </div>
 
-      {/* Filters */}
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <form onSubmit={handleSearch} className="flex flex-1 gap-3">
-          <input
-            type="text"
-            name="search"
-            placeholder="Search plugins..."
-            className="flex-1 rounded-lg border border-border-subtle bg-bg-card px-4 py-2.5 text-text-primary placeholder-text-muted focus:border-accent focus:outline-none"
-            defaultValue={search}
-          />
-          <button
-            type="submit"
-            className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
-          >
+      {/* Search + Filters */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: 'var(--text-muted)', pointerEvents: 'none' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              placeholder="Search plugins..."
+              className="input-field"
+              style={{ paddingLeft: '42px' }}
+            />
+          </div>
+          <button type="submit" className="btn-amber" style={{ padding: '0 20px', borderRadius: '10px', fontSize: '13px', whiteSpace: 'nowrap' }}>
             Search
           </button>
         </form>
 
-        <div className="flex gap-2 overflow-x-auto">
-          {categories.map((cat) => (
-            <button
-              key={cat.value}
-              onClick={() => handleCategoryChange(cat.value)}
-              className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                category === cat.value
-                  ? 'bg-accent text-white'
-                  : 'border border-border-subtle text-text-secondary hover:bg-bg-elevated'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
+        {/* Category pills */}
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+          {categories.map((cat) => {
+            const active = category === cat.value;
+            return (
+              <button
+                key={cat.value}
+                onClick={() => handleCategoryChange(cat.value)}
+                style={{
+                  whiteSpace: 'nowrap',
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  fontFamily: 'DM Sans, sans-serif',
+                  border: active ? '1px solid rgba(245,158,11,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                  background: active ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.03)',
+                  color: active ? '#f59e0b' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  transition: 'all 0.18s ease',
+                  display: 'flex', alignItems: 'center', gap: '5px',
+                }}
+              >
+                <span>{categoryEmojis[cat.value]}</span>
+                {cat.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Results count */}
-      <p className="mb-6 text-sm text-text-muted">
+      <p style={{ marginBottom: '20px', fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'DM Sans, sans-serif' }}>
         {pagination.total} plugin{pagination.total !== 1 ? 's' : ''} found
+        {category && <span style={{ color: 'var(--accent)', marginLeft: '6px' }}>in {categories.find(c => c.value === category)?.label}</span>}
       </p>
 
       {/* Plugin Grid */}
       {loading ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <StatCardSkeleton key={i} />
-          ))}
+        <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+          {Array.from({ length: 6 }).map((_, i) => <StatCardSkeleton key={i} />)}
         </div>
       ) : plugins.length === 0 ? (
-        <div className="rounded-xl border border-border-subtle bg-bg-card py-16 text-center">
-          <p className="text-text-secondary">No plugins found matching your criteria.</p>
+        <div style={{
+          borderRadius: '16px',
+          border: '1px solid rgba(255,255,255,0.055)',
+          background: 'rgba(255,255,255,0.02)',
+          padding: '64px 24px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔍</div>
+          <p style={{ color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif' }}>No plugins found matching your criteria.</p>
         </div>
       ) : (
         <>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {plugins.map((plugin) => (
+          <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+            {plugins.map((plugin, index) => (
               <Link
                 key={plugin.id}
                 to={`/plugins/${plugin.id}`}
-                className="group rounded-xl border border-border-subtle bg-bg-card p-6 transition-colors hover:border-border-strong hover:bg-bg-elevated"
+                style={{
+                  borderRadius: '16px',
+                  border: '1px solid rgba(255,255,255,0.055)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%)',
+                  padding: '22px',
+                  textDecoration: 'none',
+                  display: 'block',
+                  transition: 'all 0.25s ease',
+                  animationDelay: `${index * 0.05}s`,
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'rgba(245,158,11,0.25)';
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.3), 0 0 20px rgba(245,158,11,0.08)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.055)';
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10">
-                  <span className="text-lg font-bold text-accent">
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '14px' }}>
+                  {/* Plugin icon */}
+                  <div style={{
+                    width: '44px', height: '44px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))',
+                    border: '1px solid rgba(245,158,11,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '18px',
+                    fontWeight: '800',
+                    color: '#f59e0b',
+                    fontFamily: 'Syne, sans-serif',
+                    flexShrink: 0,
+                  }}>
                     {plugin.name?.charAt(0)?.toUpperCase()}
-                  </span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: '700', fontSize: '15px', color: 'var(--text-primary)', marginBottom: '4px', letterSpacing: '-0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {plugin.name}
+                    </h3>
+                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'DM Sans, sans-serif' }}>
+                      {plugin.download_count || 0} downloads
+                    </p>
+                  </div>
+                  <div style={{
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    background: plugin.price === 0 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
+                    border: `1px solid ${plugin.price === 0 ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)'}`,
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    color: plugin.price === 0 ? '#10b981' : '#f59e0b',
+                    fontFamily: 'DM Sans, sans-serif',
+                    flexShrink: 0,
+                  }}>
+                    {plugin.price === 0 ? 'Free' : `$${plugin.price}`}
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-text-primary group-hover:text-accent">
-                  {plugin.name}
-                </h3>
-                <p className="mt-2 line-clamp-2 text-sm text-text-secondary">
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6',
+                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {plugin.short_desc || plugin.description?.slice(0, 100)}
                 </p>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-sm font-medium text-accent">
-                    {plugin.price === 0 ? 'Free' : `$${plugin.price}`}
-                  </span>
-                  <span className="text-xs text-text-muted">
-                    {plugin.download_count || 0} downloads
-                  </span>
-                </div>
               </Link>
             ))}
           </div>
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-2">
+            <div style={{ marginTop: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <button
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
-                className="rounded-lg border border-border-subtle px-4 py-2 text-sm text-text-secondary hover:bg-bg-elevated disabled:opacity-50"
+                style={{
+                  padding: '8px 16px', borderRadius: '10px', fontSize: '13px',
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                  color: 'var(--text-secondary)', cursor: pagination.page === 1 ? 'not-allowed' : 'pointer',
+                  opacity: pagination.page === 1 ? 0.4 : 1, fontFamily: 'DM Sans, sans-serif',
+                }}
               >
-                Previous
+                ← Previous
               </button>
-              <span className="text-sm text-text-muted">
-                Page {pagination.page} of {pagination.totalPages}
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'DM Sans, sans-serif', padding: '0 8px' }}>
+                {pagination.page} / {pagination.totalPages}
               </span>
               <button
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page === pagination.totalPages}
-                className="rounded-lg border border-border-subtle px-4 py-2 text-sm text-text-secondary hover:bg-bg-elevated disabled:opacity-50"
+                style={{
+                  padding: '8px 16px', borderRadius: '10px', fontSize: '13px',
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                  color: 'var(--text-secondary)', cursor: pagination.page === pagination.totalPages ? 'not-allowed' : 'pointer',
+                  opacity: pagination.page === pagination.totalPages ? 0.4 : 1, fontFamily: 'DM Sans, sans-serif',
+                }}
               >
-                Next
+                Next →
               </button>
             </div>
           )}

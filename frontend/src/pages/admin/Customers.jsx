@@ -86,78 +86,109 @@ export default function Customers() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Customers</h1>
-          <p className="mt-1 text-sm text-text-secondary">Manage all customers</p>
+          <h1 className="text-2xl font-extrabold text-text-primary tracking-tight font-display">Customers</h1>
+          <p className="text-xs text-text-secondary mt-0.5">Manage and audit registered customer/buyer profiles</p>
         </div>
-        <button
-          onClick={() => setEditingCust({ id: 'new', name: '', email: '', password: '', business_name: '' })}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
-        >
-          + Add Customer
-        </button>
+        <div>
+          <button
+            onClick={() => setEditingCust({ id: 'new', name: '', email: '', password: '', business_name: '' })}
+            className="btn-amber px-4.5 py-2.5 rounded-xl text-sm font-semibold inline-flex items-center gap-2 shadow-glow-sm hover:shadow-glow transition-all"
+          >
+            <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Customer
+          </button>
+        </div>
       </div>
 
-      <input
-        type="text"
-        placeholder="Search customers..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full max-w-md rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary placeholder-text-muted focus:border-accent focus:outline-none"
-      />
+      <div className="flex flex-wrap gap-4 bg-bg-surface/30 p-4 rounded-2xl border border-border-subtle max-w-md">
+        <input
+          type="text"
+          placeholder="Search customers..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="input-field py-2 text-sm"
+        />
+      </div>
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
-          <div className="p-6 space-y-4">{[1, 2, 3].map(i => <div key={i} className="h-16 animate-pulse rounded bg-bg-elevated" />)}</div>
+          <div className="p-6 space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 shimmer rounded-xl" />
+            ))}
+          </div>
         ) : customers.length === 0 ? (
-          <EmptyState title="No customers" description="No customers found" />
+          <EmptyState title="No customers found" description="Adjust your search filters or register a new customer account." />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Customer</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Email</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Status</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Joined</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Actions</th>
+                <tr>
+                  <th>Customer</th>
+                  <th>Email Address</th>
+                  <th>Status</th>
+                  <th>Joined Date</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {customers.map(cust => (
-                  <tr key={cust.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-text-primary">{cust.name}</div>
-                      {cust.business_name && <div className="text-xs text-text-muted">{cust.business_name}</div>}
+                  <tr key={cust.id}>
+                    <td>
+                      <div>
+                        <p className="font-semibold text-text-primary">{cust.name}</p>
+                        {cust.business_name && (
+                          <p className="text-xs text-text-muted mt-0.5 font-mono">{cust.business_name}</p>
+                        )}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{cust.email}</td>
-                    <td className="px-6 py-4"><StatusBadge status={cust.is_active ? 'active' : 'suspended'} size="sm" /></td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(cust.created_at)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2 flex-wrap">
-                        <button onClick={() => setEditingCust(cust)}
-                          className="rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent-hover">
+                    <td className="font-mono text-xs text-text-secondary">{cust.email}</td>
+                    <td>
+                      <StatusBadge status={cust.is_active ? 'active' : 'suspended'} size="sm" />
+                    </td>
+                    <td>{formatDate(cust.created_at)}</td>
+                    <td>
+                      <div className="flex gap-2 flex-wrap justify-end">
+                        <button 
+                          onClick={() => setEditingCust(cust)}
+                          className="btn-ghost px-2.5 py-1.5 text-xs font-bold rounded-lg transition-all"
+                        >
                           Edit
                         </button>
-                        <button onClick={() => handlePasswordReset(cust)} disabled={actionLoading === cust.id}
-                          className="rounded-lg bg-purple-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-600 disabled:opacity-50">
-                          Reset Password
+                        <button 
+                          onClick={() => handlePasswordReset(cust)} 
+                          disabled={actionLoading === cust.id}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-accent2/25 bg-accent2-dim/20 px-2.5 py-1.5 text-xs font-semibold text-accent2 hover:bg-accent2 hover:text-black transition-all disabled:opacity-50"
+                        >
+                          Reset
                         </button>
                         {cust.is_active ? (
-                          <button onClick={() => handleSuspend(cust.id)} disabled={actionLoading === cust.id}
-                            className="rounded-lg bg-warning px-3 py-1.5 text-xs font-medium text-white hover:bg-warning/80 disabled:opacity-50">
+                          <button 
+                            onClick={() => handleSuspend(cust.id)} 
+                            disabled={actionLoading === cust.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-warning/25 bg-warning-dim/20 px-2.5 py-1.5 text-xs font-semibold text-warning hover:bg-warning hover:text-black transition-all disabled:opacity-50"
+                          >
                             Suspend
                           </button>
                         ) : (
-                          <button onClick={() => handleActivate(cust.id)} disabled={actionLoading === cust.id}
-                            className="rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white hover:bg-success/80 disabled:opacity-50">
+                          <button 
+                            onClick={() => handleActivate(cust.id)} 
+                            disabled={actionLoading === cust.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-success/25 bg-success-dim/20 px-2.5 py-1.5 text-xs font-semibold text-success hover:bg-success hover:text-black transition-all disabled:opacity-50"
+                          >
                             Activate
                           </button>
                         )}
-                        <button onClick={() => handleDelete(cust.id)} disabled={actionLoading === cust.id}
-                          className="rounded-lg bg-danger px-3 py-1.5 text-xs font-medium text-white hover:bg-danger/80 disabled:opacity-50">
+                        <button 
+                          onClick={() => handleDelete(cust.id)} 
+                          disabled={actionLoading === cust.id}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-danger/25 bg-danger-dim/20 px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-danger hover:text-black transition-all disabled:opacity-50"
+                        >
                           Delete
                         </button>
                       </div>
@@ -224,38 +255,53 @@ function CustomerModal({ customer, onClose, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-xl border border-border bg-bg-card p-6 shadow-xl">
-        <h2 className="text-lg font-semibold text-text-primary">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in-fast">
+      <div className="w-full max-w-md rounded-2xl border border-border-subtle bg-bg-card p-6 shadow-2xl glass-card card-accent-top">
+        <h2 className="text-lg font-bold text-text-primary">
           {formData.is_new ? 'Add Customer' : 'Edit Customer'}
         </h2>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        <p className="text-xs text-text-secondary mt-0.5">
+          {formData.is_new ? 'Create a new customer/buyer account' : `Modify credentials and profile details`}
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-secondary">Name</label>
-            <input type="text" required value={formData.name}
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Full Name</label>
+            <input 
+              type="text" 
+              required 
+              value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none" />
+              className="input-field mt-1.5" 
+            />
           </div>
           {formData.is_new && (
             <>
               <div>
-                <label className="block text-sm font-medium text-text-secondary">Email</label>
-                <input type="email" required value={formData.email}
+                <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Email Address</label>
+                <input 
+                  type="email" 
+                  required 
+                  value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none" />
+                  className="input-field mt-1.5" 
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary">Password</label>
-                <div className="relative">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Password</label>
+                <div className="relative mt-1.5">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 pr-10 text-text-primary focus:border-accent focus:outline-none"
+                    className="input-field pr-10 font-mono"
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors text-sm"
+                  >
                     {showPassword ? '🙈' : '👁️'}
                   </button>
                 </div>
@@ -263,38 +309,60 @@ function CustomerModal({ customer, onClose, onSuccess }) {
             </>
           )}
           <div>
-            <label className="block text-sm font-medium text-text-secondary">Business Name (optional)</label>
-            <input type="text" value={formData.business_name}
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Business Name (optional)</label>
+            <input 
+              type="text" 
+              value={formData.business_name}
               onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none" />
+              className="input-field mt-1.5" 
+            />
           </div>
           {!formData.is_new && (
             <div className="border-t border-border-subtle pt-4">
-              <label className="block text-sm font-medium text-text-secondary">New Password</label>
-              <div className="relative">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Override Password</label>
+              <div className="relative mt-1.5">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 pr-10 text-text-primary focus:border-accent focus:outline-none"
+                  className="input-field pr-10 font-mono"
                   placeholder="Enter new password to change"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary">
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary text-sm"
+                >
                   {showPassword ? '🙈' : '👁️'}
                 </button>
               </div>
-              <p className="mt-1 text-xs text-text-muted">Leave blank to keep current password</p>
+              <p className="mt-1 text-[11px] text-text-muted">Leave blank to retain current customer password</p>
             </div>
           )}
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose}
-              className="flex-1 rounded-lg border border-border-subtle px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-elevated">
+          <div className="flex gap-3 pt-3">
+            <button 
+              type="button" 
+              onClick={onClose}
+              className="flex-1 btn-ghost rounded-xl px-4 py-2.5 text-sm font-semibold transition-all text-center"
+            >
               Cancel
             </button>
-            <button type="submit" disabled={loading}
-              className="flex-1 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50">
-              {loading ? 'Saving...' : 'Save'}
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="flex-grow btn-amber rounded-xl px-5 py-2.5 text-sm font-bold transition-all shadow-glow-sm hover:shadow-glow inline-flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-black" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Saving…
+                </>
+              ) : (
+                'Save Customer'
+              )}
             </button>
           </div>
         </form>

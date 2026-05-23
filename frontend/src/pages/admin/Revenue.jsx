@@ -34,24 +34,23 @@ export default function AdminRevenue() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Revenue & Payments" description="Manage all payments and transactions" />
+    <div className="space-y-6 page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-text-primary tracking-tight font-display">Revenue & Ledger</h1>
+          <p className="text-xs text-text-secondary mt-0.5">Manage gross payment volumes, invoices, and transaction audits</p>
+        </div>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {loading ? (
           <>
-            <div className="animate-pulse rounded-xl border border-border-subtle bg-bg-card p-6">
-              <div className="h-4 w-20 rounded bg-bg-elevated" />
-              <div className="mt-2 h-8 w-24 rounded bg-bg-elevated" />
-            </div>
-            <div className="animate-pulse rounded-xl border border-border-subtle bg-bg-card p-6">
-              <div className="h-4 w-20 rounded bg-bg-elevated" />
-              <div className="mt-2 h-8 w-24 rounded bg-bg-elevated" />
-            </div>
-            <div className="animate-pulse rounded-xl border border-border-subtle bg-bg-card p-6">
-              <div className="h-4 w-20 rounded bg-bg-elevated" />
-              <div className="mt-2 h-8 w-24 rounded bg-bg-elevated" />
-            </div>
+            {[1, 2, 3].map(i => (
+              <div key={i} className="glass-card animate-pulse rounded-2xl border border-border-subtle p-6 card-accent-top">
+                <div className="h-4 w-20 rounded bg-white/[0.04]" />
+                <div className="mt-3 h-8 w-32 rounded bg-white/[0.04]" />
+              </div>
+            ))}
           </>
         ) : stats ? (
           <>
@@ -62,13 +61,13 @@ export default function AdminRevenue() {
         ) : null}
       </div>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 bg-bg-surface/30 p-4 rounded-2xl border border-border-subtle max-w-xs">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+          className="input-field py-2 text-sm cursor-pointer"
         >
-          <option value="">All Status</option>
+          <option value="">All Orders</option>
           <option value="pending">Pending</option>
           <option value="paid">Paid</option>
           <option value="failed">Failed</option>
@@ -76,41 +75,49 @@ export default function AdminRevenue() {
         </select>
       </div>
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
-          <TableSkeleton rows={8} columns={6} />
+          <div className="p-4">
+            <TableSkeleton rows={8} columns={6} />
+          </div>
         ) : orders.length === 0 ? (
-          <EmptyState title="No orders" description="No payment records found" />
+          <EmptyState title="No orders found" description="No invoices match your active status filters." />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Order ID</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Plugin</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Customer</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Amount</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Status</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Date</th>
+                <tr>
+                  <th>Order Reference</th>
+                  <th>Plugin Product</th>
+                  <th>Customer Profile</th>
+                  <th>Total Amount</th>
+                  <th>Payment Status</th>
+                  <th>Transaction Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4">
-                      <div className="font-mono text-xs text-text-muted">{order.id?.substring(0, 8)}...</div>
-                      {order.razorpay_order_id && (
-                        <div className="text-xs text-text-muted">Razorpay: {order.razorpay_order_id.substring(0, 12)}...</div>
-                      )}
+                  <tr key={order.id}>
+                    <td>
+                      <div>
+                        <p className="font-mono text-xs text-text-primary tracking-wider">{order.id?.substring(0, 8).toUpperCase()}...</p>
+                        {order.razorpay_order_id && (
+                          <p className="text-[10px] text-text-muted mt-0.5 font-mono">Gateway: {order.razorpay_order_id.substring(0, 12)}...</p>
+                        )}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 font-medium text-text-primary">{order.plugin?.name || 'N/A'}</td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-text-primary">{order.customer?.name || 'N/A'}</div>
-                      <div className="text-xs text-text-muted">{order.customer?.email}</div>
+                    <td className="font-semibold text-text-primary text-sm">{order.plugin?.name || 'N/A'}</td>
+                    <td>
+                      <div>
+                        <p className="text-sm font-semibold text-text-primary">{order.customer?.name || 'N/A'}</p>
+                        <p className="text-xs text-text-muted mt-0.5 font-mono">{order.customer?.email}</p>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 font-medium">{formatCurrency(order.amount)}</td>
-                    <td className="px-6 py-4"><StatusBadge status={order.payment_status} size="sm" /></td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(order.created_at)}</td>
+                    <td className="font-mono font-medium text-text-primary text-sm">{formatCurrency(order.amount)}</td>
+                    <td>
+                      <StatusBadge status={order.payment_status} size="sm" />
+                    </td>
+                    <td className="text-text-muted text-xs">{formatDate(order.created_at)}</td>
                   </tr>
                 ))}
               </tbody>

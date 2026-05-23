@@ -99,7 +99,7 @@ export default function MyPlan() {
           email: useAuthStore.getState().user?.email,
           name: useAuthStore.getState().user?.name,
         },
-        theme: { color: '#6366f1' },
+        theme: { color: '#f59e0b' },
         modal: {
           ondismiss: () => {
             setSaving(false);
@@ -126,93 +126,210 @@ export default function MyPlan() {
     }
   };
 
+  const getLimit = (plan) => {
+    if (plan === 'business') return 20;
+    if (plan === 'pro') return 10;
+    return 5;
+  };
+
   return (
-    <div className="space-y-6">
-      <PageHeader title="My Plan" description="Manage your subscription and upload limits" />
+    <div className="space-y-6 page-enter">
+      <PageHeader 
+        title="My Plan" 
+        description="Review and configure your seller plan parameters, upload limits, and subscriptions" 
+      />
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card">
-        <div className="border-b border-border-subtle px-6 py-4">
-          <h2 className="text-lg font-semibold text-text-primary">Subscription & Limits</h2>
-        </div>
-        <div className="p-6 space-y-6">
-          {loading ? (
-            <div className="h-20 animate-pulse rounded bg-bg-elevated" />
-          ) : (
-            <>
-              {/* Usage Stats */}
-              <div className="rounded-xl bg-bg-elevated p-5 flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-text-secondary mb-1">Current Plan: <strong className="text-accent uppercase tracking-wider">{profile.subscription_plan}</strong></p>
-                  <p className="text-sm font-medium text-text-primary">
-                    Plugins Uploaded: {pluginCount} / {profile.subscription_plan === 'business' ? 20 : profile.subscription_plan === 'pro' ? 10 : 5}
+      <div className="glass-card p-8 rounded-3xl border border-border-subtle shadow-card card-accent-top space-y-8">
+        {loading ? (
+          <div className="space-y-4">
+            <div className="h-24 shimmer rounded-2xl" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => <div key={i} className="h-64 shimmer rounded-2xl" />)}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Usage Stats Banner */}
+            <div className="rounded-2xl border border-border-accent/40 bg-accent-dim/15 p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-inner-glow">
+              <div className="space-y-1 text-center md:text-left">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+                  Subscription Plan Active
+                </p>
+                <h3 className="text-xl font-extrabold text-text-primary uppercase tracking-tight font-display">
+                  {profile.subscription_plan} TIER
+                </h3>
+                <p className="text-sm text-text-secondary mt-1">
+                  Product upload usage: <strong className="text-text-primary font-mono">{pluginCount}</strong> of <strong className="text-text-primary font-mono">{getLimit(profile.subscription_plan)}</strong> extensions allocated.
+                </p>
+              </div>
+              <div className="shrink-0">
+                <span className="btn-amber px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider shadow-glow-sm">
+                  {profile.subscription_plan === 'free' ? 'Basic Member' : 'Premium Developer'}
+                </span>
+              </div>
+            </div>
+
+            {/* Upgrade Options Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Free Plan Card */}
+              <div className={`rounded-2xl border p-6 flex flex-col transition-all duration-300 relative ${
+                profile.subscription_plan === 'free' 
+                  ? 'border-accent bg-accent-dim/15 shadow-glow-sm scale-[1.02]' 
+                  : 'border-border-subtle bg-bg-elevated/40 hover:border-border-strong hover:bg-bg-elevated/60'
+              }`}>
+                {profile.subscription_plan === 'free' && (
+                  <span className="absolute top-0 right-6 -translate-y-1/2 px-2.5 py-0.5 rounded-full bg-accent text-black text-xs font-bold uppercase tracking-widest border border-accent">
+                    Active
+                  </span>
+                )}
+                <div className="mb-5">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-text-secondary">Free Plan</h4>
+                  <p className="text-3xl font-extrabold text-text-primary font-display mt-2">
+                    ₹0
                   </p>
+                  <p className="text-xs text-text-muted mt-1">Permanent baseline access</p>
                 </div>
-                <div className="text-right">
-                  <div className="inline-block px-3 py-1 bg-accent/10 text-accent font-medium rounded-full text-xs">
-                    {profile.subscription_plan === 'free' && 'Free Tier'}
-                    {profile.subscription_plan === 'pro' && 'Pro Tier (₹1,000)'}
-                    {profile.subscription_plan === 'business' && 'Business Tier (₹1,500/mo)'}
-                  </div>
-                </div>
+                <ul className="text-sm text-text-secondary space-y-2.5 mb-8 flex-1">
+                  <li className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Upload up to 5 plugins
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Unlimited release updates
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Community forum access
+                  </li>
+                </ul>
+                <button 
+                  disabled={profile.subscription_plan === 'free' || saving}
+                  onClick={() => handleUpgrade('free')}
+                  className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    profile.subscription_plan === 'free' 
+                      ? 'btn-ghost cursor-not-allowed border border-border-strong text-text-muted opacity-60' 
+                      : 'btn-ghost border border-border-strong text-text-primary hover:border-accent hover:bg-accent-dim/10'
+                  }`}
+                >
+                  {profile.subscription_plan === 'free' ? 'Current Tier' : 'Downgrade'}
+                </button>
               </div>
 
-              {/* Upgrade Options */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Free Plan */}
-                <div className={`rounded-xl border p-5 flex flex-col \${profile.subscription_plan === 'free' ? 'border-accent bg-accent/5' : 'border-border-subtle bg-bg-elevated'}`}>
-                  <h3 className="font-semibold text-text-primary mb-1">Free</h3>
-                  <p className="text-xl font-bold text-text-primary mb-4">₹0</p>
-                  <ul className="text-sm text-text-secondary space-y-2 mb-6 flex-1">
-                    <li>• Upload up to 5 plugins</li>
-                    <li>• Unlimited updates</li>
-                  </ul>
-                  <button 
-                    disabled={profile.subscription_plan === 'free' || saving}
-                    onClick={() => handleUpgrade('free')}
-                    className={`w-full py-2 rounded-lg text-sm font-medium \${profile.subscription_plan === 'free' ? 'bg-bg-card text-text-muted cursor-not-allowed border border-border-subtle' : 'bg-bg-card border border-border-subtle text-text-primary hover:bg-bg-elevated'}`}
-                  >
-                    {profile.subscription_plan === 'free' ? 'Current Plan' : 'Downgrade'}
-                  </button>
+              {/* Pro Plan Card */}
+              <div className={`rounded-2xl border p-6 flex flex-col transition-all duration-300 relative ${
+                profile.subscription_plan === 'pro' 
+                  ? 'border-accent bg-accent-dim/15 shadow-glow-sm scale-[1.02]' 
+                  : 'border-border-subtle bg-bg-elevated/40 hover:border-border-strong hover:bg-bg-elevated/60'
+              }`}>
+                {profile.subscription_plan === 'pro' && (
+                  <span className="absolute top-0 right-6 -translate-y-1/2 px-2.5 py-0.5 rounded-full bg-accent text-black text-xs font-bold uppercase tracking-widest border border-accent">
+                    Active
+                  </span>
+                )}
+                <div className="mb-5">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-text-secondary">Pro Plan</h4>
+                  <p className="text-3xl font-extrabold text-text-primary font-display mt-2">
+                    ₹1,000
+                  </p>
+                  <p className="text-xs text-text-muted mt-1">One-time developer fee</p>
                 </div>
-
-                {/* Pro Plan */}
-                <div className={`rounded-xl border p-5 flex flex-col \${profile.subscription_plan === 'pro' ? 'border-accent bg-accent/5' : 'border-border-subtle bg-bg-elevated'}`}>
-                  <h3 className="font-semibold text-text-primary mb-1">Pro</h3>
-                  <p className="text-xl font-bold text-text-primary mb-4">₹1,000</p>
-                  <ul className="text-sm text-text-secondary space-y-2 mb-6 flex-1">
-                    <li>• Upload up to 10 plugins</li>
-                    <li>• Unlimited updates</li>
-                  </ul>
-                  <button 
-                    disabled={profile.subscription_plan === 'pro' || saving}
-                    onClick={() => handleUpgrade('pro')}
-                    className={`w-full py-2 rounded-lg text-sm font-medium \${profile.subscription_plan === 'pro' ? 'bg-bg-card text-text-muted cursor-not-allowed border border-border-subtle' : 'bg-accent text-white hover:bg-accent-hover'}`}
-                  >
-                    {profile.subscription_plan === 'pro' ? 'Current Plan' : 'Select Pro'}
-                  </button>
-                </div>
-
-                {/* Business Plan */}
-                <div className={`rounded-xl border p-5 flex flex-col \${profile.subscription_plan === 'business' ? 'border-accent bg-accent/5' : 'border-border-subtle bg-bg-elevated'}`}>
-                  <h3 className="font-semibold text-text-primary mb-1">Business</h3>
-                  <p className="text-xl font-bold text-text-primary mb-4">₹1,500 <span className="text-xs text-text-muted font-normal">/ mo</span></p>
-                  <ul className="text-sm text-text-secondary space-y-2 mb-6 flex-1">
-                    <li>• Upload up to 20 plugins</li>
-                    <li>• Unlimited updates</li>
-                  </ul>
-                  <button 
-                    disabled={profile.subscription_plan === 'business' || saving}
-                    onClick={() => handleUpgrade('business')}
-                    className={`w-full py-2 rounded-lg text-sm font-medium \${profile.subscription_plan === 'business' ? 'bg-bg-card text-text-muted cursor-not-allowed border border-border-subtle' : 'bg-accent text-white hover:bg-accent-hover'}`}
-                  >
-                    {profile.subscription_plan === 'business' ? 'Current Plan' : 'Select Business'}
-                  </button>
-                </div>
+                <ul className="text-sm text-text-secondary space-y-2.5 mb-8 flex-1">
+                  <li className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Upload up to 10 plugins
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Unlimited release updates
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Standard support options
+                  </li>
+                </ul>
+                <button 
+                  disabled={profile.subscription_plan === 'pro' || saving}
+                  onClick={() => handleUpgrade('pro')}
+                  className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all ${
+                    profile.subscription_plan === 'pro' 
+                      ? 'btn-ghost cursor-not-allowed border border-border-strong text-text-muted opacity-60' 
+                      : 'btn-amber shadow-glow-sm hover:shadow-glow'
+                  }`}
+                >
+                  {profile.subscription_plan === 'pro' ? 'Current Tier' : 'Upgrade to Pro'}
+                </button>
               </div>
-            </>
-          )}
-        </div>
+
+              {/* Business Plan Card */}
+              <div className={`rounded-2xl border p-6 flex flex-col transition-all duration-300 relative ${
+                profile.subscription_plan === 'business' 
+                  ? 'border-accent bg-accent-dim/15 shadow-glow-sm scale-[1.02]' 
+                  : 'border-border-subtle bg-bg-elevated/40 hover:border-border-strong hover:bg-bg-elevated/60'
+              }`}>
+                {profile.subscription_plan === 'business' && (
+                  <span className="absolute top-0 right-6 -translate-y-1/2 px-2.5 py-0.5 rounded-full bg-accent text-black text-xs font-bold uppercase tracking-widest border border-accent">
+                    Active
+                  </span>
+                )}
+                <div className="mb-5">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-text-secondary">Business Plan</h4>
+                  <p className="text-3xl font-extrabold text-text-primary font-display mt-2">
+                    ₹1,500 <span className="text-xs text-text-muted font-normal">/ mo</span>
+                  </p>
+                  <p className="text-xs text-text-muted mt-1">Recurring subscription tier</p>
+                </div>
+                <ul className="text-sm text-text-secondary space-y-2.5 mb-8 flex-1">
+                  <li className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Upload up to 20 plugins
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Unlimited release updates
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Priority VIP seller support
+                  </li>
+                </ul>
+                <button 
+                  disabled={profile.subscription_plan === 'business' || saving}
+                  onClick={() => handleUpgrade('business')}
+                  className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all ${
+                    profile.subscription_plan === 'business' 
+                      ? 'btn-ghost cursor-not-allowed border border-border-strong text-text-muted opacity-60' 
+                      : 'btn-amber shadow-glow-sm hover:shadow-glow'
+                  }`}
+                >
+                  {profile.subscription_plan === 'business' ? 'Current Tier' : 'Upgrade to Business'}
+                </button>
+              </div>
+
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 }
+

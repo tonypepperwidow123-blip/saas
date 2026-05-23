@@ -72,67 +72,97 @@ export default function AdminPlugins() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Plugins" description="Manage all plugin submissions" />
+    <div className="space-y-6 page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-text-primary tracking-tight font-display">Plugin Directory</h1>
+          <p className="text-xs text-text-secondary mt-0.5">Moderate, audit, and approve plugin listings in the marketplace</p>
+        </div>
+      </div>
 
-      <select
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
-        className="rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
-      >
-        <option value="">All Status</option>
-        <option value="pending">Pending</option>
-        <option value="approved">Approved</option>
-        <option value="rejected">Rejected</option>
-        <option value="suspended">Suspended</option>
-      </select>
+      <div className="flex flex-wrap gap-4 bg-bg-surface/30 p-4 rounded-2xl border border-border-subtle max-w-xs">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="input-field py-2 text-sm cursor-pointer"
+        >
+          <option value="">All Listings</option>
+          <option value="pending">Pending Review</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </div>
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
-          <div className="p-6 space-y-4">{[1, 2, 3].map(i => <div key={i} className="h-16 animate-pulse rounded bg-bg-elevated" />)}</div>
+          <div className="p-6 space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 shimmer rounded-xl" />
+            ))}
+          </div>
         ) : plugins.length === 0 ? (
-          <EmptyState title="No plugins" description="No plugins found" />
+          <EmptyState title="No plugins found" description="No plugin listings match your selection filter." />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Plugin</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Developer</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Price</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Status</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Date</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Actions</th>
+                <tr>
+                  <th>Plugin Detail</th>
+                  <th>Developer</th>
+                  <th>Pricing</th>
+                  <th>Status</th>
+                  <th>Submitted Date</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {plugins.map(plugin => (
-                  <tr key={plugin.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-text-primary">{plugin.name}</div>
-                      <div className="text-xs text-text-muted">{plugin.slug}</div>
+                  <tr key={plugin.id}>
+                    <td>
+                      <div>
+                        <p className="font-semibold text-text-primary">{plugin.name}</p>
+                        <p className="text-xs text-text-muted mt-0.5 font-mono">{plugin.slug}</p>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{plugin.developer?.name || 'N/A'}</td>
-                    <td className="px-6 py-4">{plugin.price === 0 ? 'Free' : formatCurrency(plugin.price)}</td>
-                    <td className="px-6 py-4"><StatusBadge status={plugin.status} size="sm" /></td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(plugin.created_at)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
+                    <td className="text-text-secondary text-sm">{plugin.developer?.name || 'N/A'}</td>
+                    <td className="font-mono text-sm">
+                      {plugin.price === 0 ? (
+                        <span className="text-success text-xs font-semibold uppercase tracking-wider bg-success-dim/10 border border-success/20 px-2 py-0.5 rounded">Free</span>
+                      ) : (
+                        <span className="text-text-primary font-medium">{formatCurrency(plugin.price)}</span>
+                      )}
+                    </td>
+                    <td>
+                      <StatusBadge status={plugin.status} size="sm" />
+                    </td>
+                    <td>{formatDate(plugin.created_at)}</td>
+                    <td>
+                      <div className="flex gap-2 justify-end">
                         {plugin.status === 'pending' && (
                           <>
-                            <button onClick={() => handleApprove(plugin.id)} disabled={actionLoading === plugin.id}
-                              className="rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white hover:bg-success/80 disabled:opacity-50">
+                            <button 
+                              onClick={() => handleApprove(plugin.id)} 
+                              disabled={actionLoading === plugin.id}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-success/25 bg-success-dim/20 px-2.5 py-1.5 text-xs font-semibold text-success hover:bg-success hover:text-black transition-all disabled:opacity-50"
+                            >
                               Approve
                             </button>
-                            <button onClick={() => handleReject(plugin.id)} disabled={actionLoading === plugin.id}
-                              className="rounded-lg bg-danger px-3 py-1.5 text-xs font-medium text-white hover:bg-danger/80 disabled:opacity-50">
+                            <button 
+                              onClick={() => handleReject(plugin.id)} 
+                              disabled={actionLoading === plugin.id}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-danger/25 bg-danger-dim/20 px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-danger hover:text-black transition-all disabled:opacity-50"
+                            >
                               Reject
                             </button>
                           </>
                         )}
                         {plugin.status === 'approved' && (
-                          <button onClick={() => handleSuspend(plugin.id)} disabled={actionLoading === plugin.id}
-                            className="rounded-lg bg-warning px-3 py-1.5 text-xs font-medium text-white hover:bg-warning/80 disabled:opacity-50">
+                          <button 
+                            onClick={() => handleSuspend(plugin.id)} 
+                            disabled={actionLoading === plugin.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-warning/25 bg-warning-dim/20 px-2.5 py-1.5 text-xs font-semibold text-warning hover:bg-warning hover:text-black transition-all disabled:opacity-50"
+                          >
                             Suspend
                           </button>
                         )}

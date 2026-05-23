@@ -127,16 +127,21 @@ export default function AdminLicenses() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Licenses" description="Manage all platform licenses" />
+    <div className="space-y-6 page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-text-primary tracking-tight font-display">License Keys</h1>
+          <p className="text-xs text-text-secondary mt-0.5">Audit activation limits, active URLs, and license states</p>
+        </div>
+      </div>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 bg-bg-surface/30 p-4 rounded-2xl border border-border-subtle max-w-xs">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+          className="input-field py-2 text-sm cursor-pointer"
         >
-          <option value="">All Status</option>
+          <option value="">All Statuses</option>
           <option value="active">Active</option>
           <option value="suspended">Suspended</option>
           <option value="expired">Expired</option>
@@ -144,72 +149,100 @@ export default function AdminLicenses() {
         </select>
       </div>
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
           <div className="p-6 space-y-4">
-            {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-16 animate-pulse rounded bg-bg-elevated" />)}
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="h-16 shimmer rounded-xl" />
+            ))}
           </div>
         ) : licenses.length === 0 ? (
-          <EmptyState title="No licenses" description="No licenses found" />
+          <EmptyState title="No licenses found" description="Adjust your filters or query to find active license keys." />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">License Key</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Plugin</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Customer</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Activations</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Activated Sites</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Status</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Created</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Actions</th>
+                <tr>
+                  <th>License Key</th>
+                  <th>Plugin</th>
+                  <th>Buyer Profile</th>
+                  <th>Activations</th>
+                  <th>Activated Sites</th>
+                  <th>Status</th>
+                  <th>Issued Date</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {licenses.map(lic => (
-                  <tr key={lic.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4">
-                      <code className="text-xs font-mono bg-bg-elevated px-2 py-1 rounded">{lic.license_key}</code>
+                  <tr key={lic.id}>
+                    <td>
+                      <code className="text-xs font-mono font-bold text-accent select-all bg-accent-dim/10 border border-accent/20 px-2 py-1 rounded">
+                        {lic.license_key}
+                      </code>
                     </td>
-                    <td className="px-6 py-4 font-medium text-text-primary">{lic.plugin?.name || 'N/A'}</td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-text-primary">{lic.customer?.name || 'N/A'}</div>
-                      <div className="text-xs text-text-muted">{lic.customer?.email}</div>
+                    <td className="font-semibold text-text-primary text-sm">{lic.plugin?.name || 'N/A'}</td>
+                    <td>
+                      <div>
+                        <p className="text-sm font-semibold text-text-primary">{lic.customer?.name || 'N/A'}</p>
+                        <p className="text-xs text-text-muted mt-0.5 font-mono">{lic.customer?.email}</p>
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm">{lic.activationsCount} / {lic.activation_limit}</span>
+                    <td>
+                      <span className="font-mono text-xs font-medium text-text-primary bg-bg-surface/50 border border-border-subtle px-2 py-1 rounded-lg">
+                        {lic.activationsCount} / {lic.activation_limit}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">
+                    <td className="text-xs text-text-secondary">
                       {lic.activeSiteUrls?.length > 0 ? (
-                        <ul className="list-disc list-inside">
+                        <ul className="list-disc list-inside space-y-0.5">
                           {lic.activeSiteUrls.map((url, i) => (
-                            <li key={i}><a href={url} target="_blank" rel="noreferrer" className="hover:text-accent truncate inline-block align-bottom max-w-[150px]">{url}</a></li>
+                            <li key={i}>
+                              <a 
+                                href={url} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="text-accent2 hover:underline font-mono inline-block max-w-[140px] truncate"
+                              >
+                                {url}
+                              </a>
+                            </li>
                           ))}
                         </ul>
                       ) : (
-                        <span className="text-text-muted italic">None</span>
+                        <span className="text-text-muted italic">No instances active</span>
                       )}
                     </td>
-                    <td className="px-6 py-4"><StatusBadge status={lic.status} size="sm" /></td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(lic.created_at)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
+                    <td>
+                      <StatusBadge status={lic.status} size="sm" />
+                    </td>
+                    <td className="text-text-muted text-xs">{formatDate(lic.created_at)}</td>
+                    <td>
+                      <div className="flex gap-2 justify-end">
                         {lic.status === 'active' && (
-                          <button onClick={() => handleSuspend(lic.id)} disabled={actionLoading === lic.id}
-                            className="rounded-lg bg-warning px-3 py-1.5 text-xs font-medium text-white hover:bg-warning/80 disabled:opacity-50">
+                          <button 
+                            onClick={() => handleSuspend(lic.id)} 
+                            disabled={actionLoading === lic.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-warning/25 bg-warning-dim/20 px-2.5 py-1.5 text-xs font-semibold text-warning hover:bg-warning hover:text-black transition-all disabled:opacity-50"
+                          >
                             Suspend
                           </button>
                         )}
                         {lic.status !== 'revoked' && (
-                          <button onClick={() => handleRevoke(lic.id)} disabled={actionLoading === lic.id}
-                            className="rounded-lg bg-danger px-3 py-1.5 text-xs font-medium text-white hover:bg-danger/80 disabled:opacity-50">
+                          <button 
+                            onClick={() => handleRevoke(lic.id)} 
+                            disabled={actionLoading === lic.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-danger/25 bg-danger-dim/20 px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-danger hover:text-black transition-all disabled:opacity-50"
+                          >
                             Revoke
                           </button>
                         )}
                         {(lic.status === 'suspended' || lic.status === 'expired') && (
-                          <button onClick={() => handleActivate(lic.id)} disabled={actionLoading === lic.id}
-                            className="rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white hover:bg-success/80 disabled:opacity-50">
+                          <button 
+                            onClick={() => handleActivate(lic.id)} 
+                            disabled={actionLoading === lic.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-success/25 bg-success-dim/20 px-2.5 py-1.5 text-xs font-semibold text-success hover:bg-success hover:text-black transition-all disabled:opacity-50"
+                          >
                             Activate
                           </button>
                         )}

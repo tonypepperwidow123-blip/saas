@@ -90,115 +90,138 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 page-enter">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Users</h1>
-          <p className="mt-1 text-sm text-text-secondary">Manage all platform users</p>
+          <h1 className="text-2xl font-extrabold text-text-primary tracking-tight font-display">User Accounts</h1>
+          <p className="text-xs text-text-secondary mt-0.5">Audit, authenticate, and manage overall platform customer bases</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover"
-        >
-          + Add User
-        </button>
+        <div>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="btn-amber px-4.5 py-2.5 rounded-xl text-sm font-semibold inline-flex items-center gap-2 shadow-glow-sm hover:shadow-glow transition-all"
+          >
+            <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+            Add New User
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        <input
-          type="text"
-          placeholder="Search users..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary placeholder-text-muted focus:border-accent focus:outline-none"
-        />
-        <select
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-          className="rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
-        >
-          <option value="">All Roles</option>
-          <option value="admin">Admin</option>
-          <option value="developer">Developer</option>
-          <option value="customer">Customer</option>
-        </select>
+      <div className="flex flex-wrap gap-4 bg-bg-surface/30 p-4 rounded-2xl border border-border-subtle">
+        <div className="flex-1 min-w-[240px]">
+          <input
+            type="text"
+            placeholder="Filter by name, email, business..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input-field py-2 text-sm"
+          />
+        </div>
+        <div className="relative min-w-[160px]">
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="input-field py-2 text-sm cursor-pointer appearance-none bg-bg-elevated pr-10"
+          >
+            <option value="">All Roles</option>
+            <option value="admin">Platform Admin</option>
+            <option value="developer">Developer</option>
+            <option value="customer">Customer</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 pt-0.5 text-text-muted">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-card card-accent-top">
         {loading ? (
-          <TableSkeleton rows={8} columns={5} />
+          <TableSkeleton rows={8} columns={6} />
         ) : users.length === 0 ? (
-          <EmptyState title="No users found" description="No users match your search criteria" />
+          <EmptyState 
+            title="No users found" 
+            description="Adjust your search criteria or register a new user on the platform." 
+          />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="pv-table">
               <thead>
-                <tr className="border-b border-border-subtle bg-bg-elevated text-left">
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Name</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Email</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Role</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Plan</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Status</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Joined</th>
-                  <th className="px-6 py-3 text-sm font-medium text-text-secondary">Actions</th>
+                <tr>
+                  <th>Identity / Profile</th>
+                  <th>Email Address</th>
+                  <th>Account Role</th>
+                  <th>Usage Plan</th>
+                  <th>Status</th>
+                  <th>Joined Date</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody>
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-bg-elevated">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-text-primary">{user.name}</div>
-                      {user.business_name && (
-                        <div className="text-xs text-text-muted">{user.business_name}</div>
-                      )}
+                  <tr key={user.id}>
+                    <td>
+                      <div>
+                        <p className="font-semibold text-text-primary">{user.name}</p>
+                        {user.business_name && (
+                          <p className="text-xs text-text-muted mt-0.5 font-mono">{user.business_name}</p>
+                        )}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{user.email}</td>
-                    <td className="px-6 py-4">
-                      <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                        user.role === 'admin' ? 'bg-purple-500/20 text-purple-400' :
-                        user.role === 'developer' ? 'bg-blue-500/20 text-blue-400' :
-                        'bg-gray-500/20 text-gray-400'
+                    <td className="font-mono text-xs text-text-secondary">{user.email}</td>
+                    <td>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                        user.role === 'admin' 
+                          ? 'bg-accent2-dim text-accent2 border-accent2/25' 
+                          : user.role === 'developer' 
+                          ? 'bg-accent-dim text-accent border-border-accent/35' 
+                          : 'bg-bg-elevated border border-border-strong text-text-secondary'
                       }`}>
                         {user.role}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td>
                       {user.role === 'developer' ? (
-                        <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                          user.subscription_plan === 'business' ? 'bg-yellow-500/20 text-yellow-400' :
-                          user.subscription_plan === 'pro' ? 'bg-green-500/20 text-green-400' :
-                          'bg-gray-500/20 text-gray-400'
+                        <span className={`px-2 py-0.5 rounded border text-[11px] font-bold uppercase tracking-wider font-mono ${
+                          user.subscription_plan === 'business' 
+                            ? 'bg-accent-dim text-accent border-border-accent/40' 
+                            : user.subscription_plan === 'pro' 
+                            ? 'bg-success/10 text-success border-success/20' 
+                            : 'bg-bg-elevated border border-border-strong text-text-muted'
                         }`}>
                           {user.subscription_plan || 'free'}
                         </span>
                       ) : (
-                        <span className="text-text-muted text-xs">—</span>
+                        <span className="text-text-muted text-xs font-mono">—</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td>
                       <StatusBadge status={user.is_active ? 'active' : 'suspended'} size="sm" />
                     </td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{formatDate(user.created_at)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2 flex-wrap">
+                    <td>{formatDate(user.created_at)}</td>
+                    <td>
+                      <div className="flex gap-2 flex-wrap justify-end">
                         <button
                           onClick={() => setEditingUser(user)}
-                          className="rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent-hover"
+                          className="btn-ghost px-2.5 py-1.5 text-xs font-bold rounded-lg transition-all"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handlePasswordReset(user)}
                           disabled={actionLoading === user.id}
-                          className="rounded-lg bg-purple-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-600 disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-accent2/25 bg-accent2-dim/20 px-2.5 py-1.5 text-xs font-semibold text-accent2 hover:bg-accent2 hover:text-black transition-all disabled:opacity-50"
                         >
-                          Reset Password
+                          Reset
                         </button>
                         {user.is_active ? (
                           <button
                             onClick={() => handleSuspend(user.id)}
                             disabled={actionLoading === user.id || user.role === 'admin'}
-                            className="rounded-lg bg-warning px-3 py-1.5 text-xs font-medium text-white hover:bg-warning/80 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-warning/25 bg-warning/10 px-2.5 py-1.5 text-xs font-semibold text-warning hover:bg-warning hover:text-black transition-all disabled:opacity-50"
                           >
                             Suspend
                           </button>
@@ -206,7 +229,7 @@ export default function AdminUsers() {
                           <button
                             onClick={() => handleReinstate(user.id)}
                             disabled={actionLoading === user.id}
-                            className="rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white hover:bg-success/80 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-success/25 bg-success/15 px-2.5 py-1.5 text-xs font-semibold text-success hover:bg-success hover:text-black transition-all disabled:opacity-50"
                           >
                             Reinstate
                           </button>
@@ -214,7 +237,7 @@ export default function AdminUsers() {
                         <button
                           onClick={() => handleDelete(user.id)}
                           disabled={actionLoading === user.id || user.role === 'admin'}
-                          className="rounded-lg bg-danger px-3 py-1.5 text-xs font-medium text-white hover:bg-danger/80 disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-danger/25 bg-danger/10 px-2.5 py-1.5 text-xs font-semibold text-danger hover:bg-danger hover:text-black transition-all disabled:opacity-50"
                         >
                           Delete
                         </button>
@@ -265,84 +288,108 @@ function AddUserModal({ onClose, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-xl border border-border bg-bg-card p-6 shadow-xl">
-        <h2 className="text-lg font-semibold text-text-primary">Add New User</h2>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in-fast">
+      <div className="w-full max-w-md rounded-2xl border border-border-subtle bg-bg-card p-6 shadow-2xl glass-card card-accent-top">
+        <h2 className="text-lg font-bold text-text-primary">Add New User</h2>
+        <p className="text-xs text-text-secondary mt-0.5">Register a manual credential set for developers or clients</p>
+        
+        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-secondary">Name</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Full Name</label>
             <input
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+              className="input-field mt-1.5"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-text-secondary">Email</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Email Address</label>
             <input
               type="email"
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+              className="input-field mt-1.5"
             />
           </div>
           <div>
             <div className="flex justify-between items-center">
-              <label className="block text-sm font-medium text-text-secondary">Password</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Numeric Password</label>
               <span className="text-[10px] text-text-muted">8+ digits, numbers only (0-9)</span>
             </div>
-            <div className="relative mt-1">
+            <div className="relative mt-1.5">
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 pr-10 text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                className="input-field pr-10 font-mono"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary">
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors text-sm"
+              >
                 {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-text-secondary">Role</label>
-            <select
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
-            >
-              <option value="customer">Customer</option>
-              <option value="developer">Developer</option>
-              <option value="admin">Admin</option>
-            </select>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Account Role</label>
+              <div className="relative mt-1.5">
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="input-field cursor-pointer appearance-none bg-bg-elevated pr-10"
+                >
+                  <option value="customer">Customer</option>
+                  <option value="developer">Developer</option>
+                  <option value="admin">Administrator</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-text-secondary">Business Name (optional)</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Business Name (optional)</label>
             <input
               type="text"
               value={formData.business_name}
               onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+              className="input-field mt-1.5"
             />
           </div>
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-3">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-lg border border-border-subtle px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-elevated"
+              className="flex-1 btn-ghost rounded-xl px-4 py-2.5 text-sm font-semibold transition-all text-center"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
+              className="flex-grow btn-amber rounded-xl px-5 py-2.5 text-sm font-bold transition-all shadow-glow-sm hover:shadow-glow inline-flex items-center justify-center gap-2"
             >
-              {loading ? 'Creating...' : 'Create User'}
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-black" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Creating…
+                </>
+              ) : (
+                'Create User'
+              )}
             </button>
           </div>
         </form>
@@ -400,95 +447,122 @@ function EditUserModal({ user, onClose, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-xl border border-border bg-bg-card p-6 shadow-xl">
-        <h2 className="text-lg font-semibold text-text-primary">Edit User</h2>
-        <p className="text-sm text-text-muted mt-1">{user.email}</p>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in-fast">
+      <div className="w-full max-w-md rounded-2xl border border-border-subtle bg-bg-card p-6 shadow-2xl glass-card card-accent-top">
+        <h2 className="text-lg font-bold text-text-primary">Edit User Profile</h2>
+        <p className="text-xs font-mono text-text-secondary mt-0.5">{user.email}</p>
+        
+        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-secondary">Name</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Full Name</label>
             <input
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+              className="input-field mt-1.5"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-text-secondary">Role</label>
-            <select
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              disabled={user.role === 'admin'}
-              className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="customer">Customer</option>
-              <option value="developer">Developer</option>
-              {user.role === 'admin' && <option value="admin">Admin</option>}
-            </select>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Account Role</label>
+            <div className="relative mt-1.5">
+              <select
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                disabled={user.role === 'admin'}
+                className="input-field cursor-pointer appearance-none bg-bg-elevated pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="customer">Customer</option>
+                <option value="developer">Developer</option>
+                {user.role === 'admin' && <option value="admin">Administrator</option>}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
             {user.role === 'admin' && (
-              <p className="mt-1 text-xs text-text-muted">Admin role cannot be changed</p>
+              <p className="mt-1 text-[11px] text-text-muted">Security rule: Administrator roles cannot be downgraded</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-text-secondary">Business Name</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Business Name</label>
             <input
               type="text"
               value={formData.business_name}
               onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
+              className="input-field mt-1.5"
             />
           </div>
           {(user.role === 'developer' || formData.role === 'developer') && (
-            <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4">
-              <label className="block text-sm font-semibold text-yellow-400 mb-1">⚡ Subscription Plan <span className="text-xs font-normal text-text-muted">(Admin Override)</span></label>
-              <select
-                value={formData.subscription_plan}
-                onChange={(e) => setFormData({ ...formData, subscription_plan: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 text-text-primary focus:border-accent focus:outline-none"
-              >
-                <option value="free">Free — 5 plugins</option>
-                <option value="pro">Pro — 10 plugins (₹1,000)</option>
-                <option value="business">Business — 20 plugins (₹1,500/mo)</option>
-              </select>
-              <p className="mt-1 text-xs text-text-muted">Manually override without requiring payment.</p>
+            <div className="rounded-2xl border border-border-accent bg-accent-dim/10 p-4 shadow-inner-glow">
+              <label className="block text-xs font-bold text-accent uppercase tracking-wider mb-1.5">⚡ Subscription Override</label>
+              <div className="relative mt-1">
+                <select
+                  value={formData.subscription_plan}
+                  onChange={(e) => setFormData({ ...formData, subscription_plan: e.target.value })}
+                  className="input-field cursor-pointer appearance-none bg-bg-elevated pr-10 text-xs"
+                >
+                  <option value="free">Free Tiers (max 5 uploads)</option>
+                  <option value="pro">Pro Tiers (max 10 uploads)</option>
+                  <option value="business">Business Tiers (max 20 uploads)</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
           )}
           <div className="border-t border-border-subtle pt-4">
             <div className="flex justify-between items-center">
-              <label className="block text-sm font-medium text-text-secondary">New Password</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Override Password</label>
               <span className="text-[10px] text-text-muted">8+ digits, numbers only (0-9)</span>
             </div>
-            <div className="relative mt-1">
+            <div className="relative mt-1.5">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={formData.newPassword}
                 onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                className="w-full rounded-lg border border-border-subtle bg-bg-elevated px-4 py-2 pr-10 text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                placeholder="Enter new password"
+                className="input-field pr-10 font-mono"
+                placeholder="Enter override password"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary">
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary text-sm"
+              >
                 {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
-            <p className="mt-1 text-xs text-text-muted">Leave blank to keep current password</p>
+            <p className="mt-1 text-[11px] text-text-muted">Leave blank to retain existing account password</p>
           </div>
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-3">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-lg border border-border-subtle px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-elevated"
+              className="flex-1 btn-ghost rounded-xl px-4 py-2.5 text-sm font-semibold transition-all text-center"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
+              className="flex-grow btn-amber rounded-xl px-5 py-2.5 text-sm font-bold transition-all shadow-glow-sm hover:shadow-glow inline-flex items-center justify-center gap-2"
             >
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-black" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Saving…
+                </>
+              ) : (
+                'Save Changes'
+              )}
             </button>
           </div>
         </form>
