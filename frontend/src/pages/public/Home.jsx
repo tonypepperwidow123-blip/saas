@@ -571,10 +571,13 @@ function InteractiveLicensingShowcase() {
             </linearGradient>
           </defs>
           <path d="M 0 60 Q 50 30 100 50 T 200 20 T 300 10 L 300 80 L 0 80 Z" fill="url(#chartGrad)" />
-          <path d="M 0 60 Q 50 30 100 50 T 200 20 T 300 10" fill="none" stroke="#f59e0b" strokeWidth="1.5" />
+          <path d="M 0 60 Q 50 30 100 50 T 200 20 T 300 10" fill="none" stroke="rgba(245, 158, 11, 0.4)" strokeWidth="1.5" />
+          <path d="M 0 60 Q 50 30 100 50 T 200 20 T 300 10" fill="none" stroke="#06b6d4" strokeWidth="2" strokeDasharray="14 120" className="animate-pulse-dash" style={{ filter: 'drop-shadow(0 0 4px #06b6d4)' }} />
           
-          <circle cx="200" cy="20" r="4" fill="#f59e0b" style={{ filter: 'drop-shadow(0 0 4px #f59e0b)' }} />
-          <line x1="200" y1="5" x2="200" y2="75" stroke="rgba(245, 158, 11, 0.25)" strokeWidth="1" strokeDasharray="3 3" />
+          <g className="scanner-sweep-group">
+            <line x1="150" y1="5" x2="150" y2="75" stroke="rgba(245, 158, 11, 0.45)" strokeWidth="1" strokeDasharray="3 3" />
+            <circle cx="150" cy="35" r="4.5" fill="#f59e0b" style={{ filter: 'drop-shadow(0 0 6px #f59e0b)' }} />
+          </g>
         </svg>
       </div>
 
@@ -591,7 +594,7 @@ function InteractiveLicensingShowcase() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '9.5px', textAlign: 'left', fontFamily: 'monospace' }}>
           {recentRequests.map((req) => (
-            <div key={req.id} style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', animation: 'fade-in 0.3s ease-out forwards' }}>
+            <div key={req.id} className="domain-row-enter" style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', padding: '2px 4px', borderRadius: '4px' }}>
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}>{req.domain}</span>
               <span style={{ color: req.color, fontWeight: '700' }}>{req.type}</span>
             </div>
@@ -607,11 +610,25 @@ function InteractiveDeployerShowcase() {
   const [deployState, setDeployState] = useState('PUSHING'); 
   const [version, setVersion] = useState('v2.4.1');
   const [upgradedCount, setUpgradedCount] = useState(1250);
+  const [activeLogIndex, setActiveLogIndex] = useState(0);
 
   const versionsList = ['v2.4.1', 'v2.4.2', 'v2.4.3', 'v2.5.0'];
 
+  const broadcastLogs = [
+    'Connection to endpoint beta-client.org success',
+    'Delivering cryptographic signed payload...',
+    `Upgraded sandbox-site.net to ${version} [OK]`,
+    'Active push on dev-env.local complete',
+    'Notified server cluster #12... ok',
+    'Package integrity validated at client node',
+    `Upgraded alpha-wp.org to ${version} [OK]`,
+    `Propagating release ${version} to cluster #3`
+  ];
+
   useEffect(() => {
     let timer;
+    let logTimer;
+    
     if (deployState === 'PUSHING') {
       timer = setInterval(() => {
         setDeployProgress(prev => {
@@ -625,6 +642,10 @@ function InteractiveDeployerShowcase() {
           return next;
         });
       }, 150);
+
+      logTimer = setInterval(() => {
+        setActiveLogIndex(prev => (prev + 1) % broadcastLogs.length);
+      }, 1300);
     } else if (deployState === 'VERIFYING') {
       timer = setTimeout(() => {
         setDeployState('COMPLETED');
@@ -643,9 +664,10 @@ function InteractiveDeployerShowcase() {
 
     return () => {
       clearInterval(timer);
+      clearInterval(logTimer);
       clearTimeout(timer);
     };
-  }, [deployState]);
+  }, [deployState, version]);
 
   return (
     <div className="showcase-panel" style={{ width: '100%', maxWidth: '460px', padding: '24px', position: 'relative', overflow: 'visible' }}>
@@ -673,6 +695,29 @@ function InteractiveDeployerShowcase() {
           }}>
             {version} {deployState === 'PUSHING' ? 'PUSHING' : deployState === 'VERIFYING' ? 'VERIFYING' : 'RELEASED'}
           </span>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', margin: '15px 0 20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className={deployState === 'PUSHING' ? 'animate-float-fast' : ''} style={{ fontSize: '24px' }}>📦</div>
+          <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontWeight: '700', fontFamily: 'monospace' }}>VAULT</span>
+        </div>
+        
+        <div style={{ flex: 1, height: '20px', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: '9px', left: 0, right: 0, height: '1.5px', borderTop: '1.5px dashed rgba(255,255,255,0.08)' }} />
+          {deployState === 'PUSHING' && (
+            <>
+              <div className="flow-particle" style={{ animationDelay: '0s' }} />
+              <div className="flow-particle" style={{ animationDelay: '0.6s' }} />
+              <div className="flow-particle" style={{ animationDelay: '1.2s' }} />
+            </>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className={deployState === 'COMPLETED' ? 'animate-pulse-glow-cyan' : ''} style={{ fontSize: '24px', filter: deployState === 'COMPLETED' ? 'drop-shadow(0 0 6px #10b981)' : 'none', transition: 'all 0.5s' }}>🌐</div>
+          <span style={{ fontSize: '8px', color: deployState === 'COMPLETED' ? '#10b981' : 'var(--text-muted)', fontWeight: '700', fontFamily: 'monospace', transition: 'all 0.3s' }}>CLIENTS</span>
         </div>
       </div>
 
@@ -711,6 +756,34 @@ function InteractiveDeployerShowcase() {
           <p style={{ fontSize: '15px', fontWeight: '800', color: '#10b981', marginTop: '2px', fontFamily: 'Syne, sans-serif' }}>100%</p>
         </div>
       </div>
+
+      <div style={{
+        background: 'rgba(0, 0, 0, 0.45)',
+        border: '1px solid rgba(255, 255, 255, 0.04)',
+        borderRadius: '8px',
+        padding: '10px 14px',
+        height: '62px',
+        fontFamily: "'Space Mono', 'DM Mono', monospace",
+        fontSize: '9px',
+        color: 'var(--text-secondary)',
+        overflow: 'hidden',
+        marginTop: '16px',
+        textAlign: 'left',
+        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.6)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--accent2)', fontWeight: 'bold', fontSize: '8px', letterSpacing: '0.06em', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '4px', marginBottom: '6px', textTransform: 'uppercase' }}>
+          <span>Broadcast Log Stream</span>
+          <span style={{ color: deployState === 'PUSHING' ? '#f59e0b' : '#10b981' }}>{deployState}</span>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          <div style={{ color: 'rgba(255,255,255,0.7)', transition: 'all 0.3s' }}>
+            &gt; {broadcastLogs[activeLogIndex]}
+          </div>
+          <div style={{ opacity: 0.4 }}>
+            &gt; {broadcastLogs[(activeLogIndex + 1) % broadcastLogs.length]}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -718,6 +791,7 @@ function InteractiveDeployerShowcase() {
 function InteractivePipelineShowcase() {
   const [pipelineState, setPipelineState] = useState(0); 
   const [activePlugin, setActivePlugin] = useState('wp-seo-pro.zip');
+  const [binaryCode, setBinaryCode] = useState('1 0 1 1 0 0 1 0 1 1');
 
   const pluginsPool = ['wp-seo-pro.zip', 'woo-cart-booster.zip', 'elementor-ext.zip'];
 
@@ -749,6 +823,17 @@ function InteractivePipelineShowcase() {
     };
   }, [activePlugin]);
 
+  useEffect(() => {
+    let bTimer;
+    if (pipelineState === 2) {
+      bTimer = setInterval(() => {
+        const next = Array.from({ length: 14 }).map(() => Math.round(Math.random())).join(' ');
+        setBinaryCode(next);
+      }, 150);
+    }
+    return () => clearInterval(bTimer);
+  }, [pipelineState]);
+
   return (
     <div className="showcase-panel" style={{ width: '100%', maxWidth: '460px', padding: '24px', position: 'relative', overflow: 'hidden' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', marginBottom: '16px' }}>
@@ -763,8 +848,17 @@ function InteractivePipelineShowcase() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left', fontSize: '11px', fontFamily: 'monospace' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left', fontSize: '11px', fontFamily: 'monospace', position: 'relative' }}>
         
+        {/* Floating animated elements */}
+        {pipelineState >= 5 && (
+          <div style={{ pointerEvents: 'none', position: 'absolute', inset: 0, zIndex: 10, overflow: 'visible' }}>
+            <span className="animate-float-coin" style={{ position: 'absolute', right: '30px', bottom: '20px', color: '#10b981', fontSize: '9px', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", animationDelay: '0s' }}>+$49.00</span>
+            <span className="animate-float-coin" style={{ position: 'absolute', right: '80px', bottom: '15px', color: '#f59e0b', fontSize: '12px', animationDelay: '0.7s' }}>💰</span>
+            <span className="animate-float-coin" style={{ position: 'absolute', right: '140px', bottom: '25px', color: '#10b981', fontSize: '8px', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", animationDelay: '1.4s' }}>+$49.00</span>
+          </div>
+        )}
+
         <div style={{
           background: pipelineState >= 1 ? 'rgba(255, 255, 255, 0.015)' : 'rgba(255, 255, 255, 0.002)',
           border: '1px solid',
@@ -817,6 +911,24 @@ function InteractivePipelineShowcase() {
           <span style={{ color: 'var(--text-secondary)', fontSize: '10px' }}>
             {pipelineState >= 3 ? 'Vulnerability scan completed. 0 issues flagged.' : pipelineState === 2 ? 'Analyzing classes, dependencies & PHP code AST...' : 'Awaiting code audit...'}
           </span>
+          
+          {pipelineState === 2 && (
+            <div style={{
+              marginTop: '8px',
+              fontSize: '8.5px',
+              color: '#f59e0b',
+              background: 'rgba(0,0,0,0.35)',
+              padding: '5px 8px',
+              borderRadius: '4px',
+              borderLeft: '2px solid #f59e0b',
+              fontFamily: "'Space Mono', monospace",
+              letterSpacing: '0.05em',
+              transition: 'all 0.15s ease',
+              textShadow: '0 0 4px rgba(245, 158, 11, 0.4)'
+            }}>
+              [SCAN MATRIX]: {binaryCode}
+            </div>
+          )}
         </div>
 
         <div style={{
@@ -844,6 +956,12 @@ function InteractivePipelineShowcase() {
           <span style={{ color: 'var(--text-secondary)', fontSize: '10px' }}>
             {pipelineState >= 5 ? 'Release live on production vaults.' : pipelineState === 4 ? 'Propagating cryptographically signed zip globally...' : 'Awaiting distribution push...'}
           </span>
+          
+          {pipelineState === 4 && (
+            <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
+              <div className="progress-bar-shimmer-cyan" style={{ width: '100%', height: '100%' }} />
+            </div>
+          )}
         </div>
 
         <div style={{

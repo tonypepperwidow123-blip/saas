@@ -695,6 +695,61 @@ h1, h2, h3, h4, h5, h6 {
   animation: progress-shimmer 2.5s linear infinite;
 }
 
+/* ── Extreme UI Micro-Animations ────────────────────────────────────────── */
+
+/* 1. Sweeping Laser Scanner */
+@keyframes sweep-laser {
+  0% { transform: translateX(-120px); }
+  50% { transform: translateX(120px); }
+  100% { transform: translateX(-120px); }
+}
+
+.scanner-sweep-group {
+  transform-origin: center;
+  animation: sweep-laser 4s ease-in-out infinite;
+}
+
+/* 2. Floating Data Packets */
+@keyframes flow-left-to-right {
+  0% { left: 0%; opacity: 0; transform: scale(0.6); }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { left: 100%; opacity: 0; transform: scale(1.1); }
+}
+
+.flow-particle {
+  position: absolute;
+  top: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent2);
+  box-shadow: 0 0 6px var(--accent2);
+  animation: flow-left-to-right 2s linear infinite;
+}
+
+/* 3. Floating Earning Coins */
+@keyframes float-coin {
+  0% { transform: translateY(12px) scale(0.7); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(-35px) scale(1.15); opacity: 0; }
+}
+
+.animate-float-coin {
+  animation: float-coin 2.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* 4. Domain Request Rows sliding introduction */
+@keyframes domain-row-slide {
+  0% { opacity: 0; transform: translateY(-12px); background: rgba(245, 158, 11, 0.08); }
+  100% { opacity: 1; transform: translateY(0); background: transparent; }
+}
+
+.domain-row-enter {
+  animation: domain-row-slide 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 
 
 
