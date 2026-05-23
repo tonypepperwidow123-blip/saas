@@ -8,8 +8,20 @@ export const useAuthStore = create(
       token: null,
       role: null,
       isAuthenticated: false,
-      needsOnboarding: false, // true for new Google OAuth users who haven't selected a role yet
+      needsOnboarding: false,
 
+      /**
+       * setTokenOnly — store the access token WITHOUT touching isAuthenticated.
+       * Used during session sync so DashboardLayout doesn't see a brief
+       * isAuthenticated=false and flash-redirect to /login.
+       */
+      setTokenOnly: (token) => {
+        set({ token });
+      },
+
+      /**
+       * setAuth — full auth state update (user + token + optional onboarding flag).
+       */
       setAuth: (user, token, needsOnboarding = false) => {
         set({
           user,
@@ -20,6 +32,10 @@ export const useAuthStore = create(
         });
       },
 
+      /**
+       * completeOnboarding — called from SelectRole after the user picks a role.
+       * Clears the onboarding flag and updates the user profile.
+       */
       completeOnboarding: (updatedUser) => {
         set({
           user: updatedUser,

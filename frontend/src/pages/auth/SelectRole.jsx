@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { authService } from '../../services/auth.service';
 import { useAuthStore } from '../../store/auth.store';
@@ -45,10 +45,23 @@ const roles = [
 
 export default function SelectRole() {
   const navigate = useNavigate();
-  const { user, token, completeOnboarding } = useAuthStore();
+  const { user, token, role, isAuthenticated, needsOnboarding, completeOnboarding } = useAuthStore();
   const [selectedRole, setSelectedRole] = useState(null);
   const [businessName, setBusinessName] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Not logged in → go to login
+  if (!isAuthenticated || !token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Already set up → skip onboarding, go straight to dashboard
+  if (isAuthenticated && !needsOnboarding) {
+    const path = role === 'admin' ? '/admin/dashboard'
+               : role === 'developer' ? '/developer/dashboard'
+               : '/customer/dashboard';
+    return <Navigate to={path} replace />;
+  }
 
   const handleContinue = async () => {
     if (!selectedRole) {
