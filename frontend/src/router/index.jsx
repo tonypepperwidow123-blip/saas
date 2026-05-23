@@ -16,6 +16,7 @@ import PluginDetails from '../pages/public/PluginDetails';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import ForgotPassword from '../pages/auth/ForgotPassword';
+import SelectRole from '../pages/auth/SelectRole';
 
 // Customer Pages
 import CustomerDashboard from '../pages/customer/Dashboard';
@@ -74,6 +75,12 @@ export const router = createBrowserRouter(
         { path: 'register', element: <Register /> },
         { path: 'forgot-password', element: <ForgotPassword /> },
       ],
+    },
+
+    // Onboarding: Google OAuth new-user role selection (standalone full-page layout)
+    {
+      path: '/select-role',
+      element: <SelectRole />,
     },
 
     // Developer Routes

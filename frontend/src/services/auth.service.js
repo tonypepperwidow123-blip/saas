@@ -27,8 +27,17 @@ export const authService = {
     return response.data;
   },
 
+  /**
+   * Called from the SelectRole onboarding page.
+   * Saves the chosen role to the user's profile in the backend.
+   */
+  setupRole: async (role, business_name = '') => {
+    const response = await api.patch('/auth/setup-role', { role, business_name });
+    return response.data;
+  },
+
   forgotPassword: async (email) => {
     const response = await api.post('/auth/forgot-password', { email });
     return response.data;
   },
-};
+};

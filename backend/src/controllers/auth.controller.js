@@ -144,6 +144,49 @@ export const me = async (req, res) => {
   return success(res, { user: req.user });
 };
 
+export const setupRole = async (req, res) => {
+  try {
+    const { role, business_name } = req.body;
+
+    if (!role || !['developer', 'customer'].includes(role)) {
+      return error(res, 'Invalid role. Must be "developer" or "customer".', 400);
+    }
+
+    const userId = req.user.id;
+
+    const updatePayload = {
+      role,
+      business_name: business_name || null,
+    };
+
+    const { data: updatedProfile, error: updateError } = await supabaseAdmin
+      .from('profiles')
+      .update(updatePayload)
+      .eq('id', userId)
+      .select('id, name, email, role, business_name, avatar_url, is_active')
+      .single();
+
+    if (updateError || !updatedProfile) {
+      console.error('setupRole: failed to update profile:', updateError);
+      return error(res, 'Failed to save your role selection. Please try again.', 500);
+    }
+
+    return success(res, {
+      user: {
+        id: updatedProfile.id,
+        name: updatedProfile.name,
+        email: updatedProfile.email,
+        role: updatedProfile.role,
+        business_name: updatedProfile.business_name,
+        avatar_url: updatedProfile.avatar_url,
+      },
+    });
+  } catch (err) {
+    console.error('setupRole error:', err);
+    return error(res, err.message || 'Role setup failed');
+  }
+};
+
 export const logout = async (req, res) => {
   // The actual Supabase session is managed on the frontend (supabase.auth.signOut()).
   // The backend just acknowledges the logout request.

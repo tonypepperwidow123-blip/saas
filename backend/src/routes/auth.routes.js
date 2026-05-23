@@ -11,7 +11,8 @@ router.post('/register', authLimiter, validate(RegisterSchema), authController.r
 router.post('/login', authLimiter, validate(LoginSchema), authController.login);
 router.post('/logout', protect, authController.logout);
 router.get('/me', protect, authController.me);
+router.patch('/setup-role', protect, authController.setupRole);
 router.post('/refresh', authController.refreshToken);
 router.post('/forgot-password', authLimiter, validate(ForgotPasswordSchema), authController.forgotPassword);
 
-export default router;
+export default router;

@@ -14,7 +14,8 @@
  *    - Supabase exchanges the ?code= param automatically (PKCE)
  *    - onAuthStateChange fires SIGNED_IN with the new session
  *    - We call /api/auth/me with that token → backend auto-creates profile
- *    - User is redirected to their dashboard
+ *    - NEW USER: no role in Google metadata → redirect to /select-role
+ *    - EXISTING USER: role already set → redirect to their dashboard
  */
 import { useEffect, useRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
@@ -32,7 +33,7 @@ const getDashboardPath = (role) => {
 
 const isAuthPage = () => {
   const p = window.location.pathname;
-  return p === '/' || p === '/login' || p === '/register';
+  return p === '/' || p === '/login' || p === '/register' || p === '/select-role';
 };
 
 function App() {
@@ -43,16 +44,18 @@ function App() {
     initRef.current = true;
 
     /**
-     * syncSession: given a Supabase access token, validate it against
-     * our backend /auth/me endpoint which:
+     * syncSession: given a Supabase access token + raw Supabase session,
+     * validate against our backend /auth/me endpoint which:
      *   - verifies the token is genuine (supabaseAdmin.auth.getUser)
      *   - fetches or auto-creates the profile row in public.profiles
      *   - returns the full user object
      *
-     * On success → store user+token in Zustand, redirect from auth pages.
+     * New Google OAuth users → needsOnboarding = true → redirect to /select-role
+     * Existing users → go straight to dashboard
+     *
      * On failure → clear Zustand only (do NOT call supabase.auth.signOut).
      */
-    const syncSession = async (accessToken) => {
+    const syncSession = async (accessToken, supabaseSession = null) => {
       // Temporarily store token so api.js sends it as Authorization header
       useAuthStore.getState().setAuth(null, accessToken);
 
@@ -60,9 +63,26 @@ function App() {
         const res = await authService.me();
 
         if (res?.success && res.data?.user) {
-          useAuthStore.getState().setAuth(res.data.user, accessToken);
+          const user = res.data.user;
+
+          // Detect if this is a brand-new Google OAuth user who needs to pick a role.
+          // Google OAuth users have no `role` in their Supabase user_metadata —
+          // the backend auto-assigns 'customer' as default. We flag them as needing
+          // onboarding if:
+          //   - the Supabase session user_metadata has no explicit `role` field
+          //   - AND the Supabase session indicates a new identity (identity_data from Google)
+          const isGoogleUser = supabaseSession?.user?.app_metadata?.provider === 'google';
+          const hasNoExplicitRole = !supabaseSession?.user?.user_metadata?.role;
+          const needsOnboarding = isGoogleUser && hasNoExplicitRole;
+
+          useAuthStore.getState().setAuth(user, accessToken, needsOnboarding);
+
           if (isAuthPage()) {
-            window.location.replace(getDashboardPath(res.data.user.role));
+            if (needsOnboarding) {
+              window.location.replace('/select-role');
+            } else {
+              window.location.replace(getDashboardPath(user.role));
+            }
           }
           return true;
         }
@@ -82,13 +102,13 @@ function App() {
         if (event === 'SIGNED_IN') {
           // Google OAuth callback (PKCE) — always sync
           if (session?.access_token && session.access_token !== store.token) {
-            await syncSession(session.access_token);
+            await syncSession(session.access_token, session);
           }
 
         } else if (event === 'INITIAL_SESSION') {
           // Page refresh — only sync if we don't already have user data
           if (session?.access_token && !store.user) {
-            await syncSession(session.access_token);
+            await syncSession(session.access_token, session);
           } else if (!session && store.token) {
             // No Supabase session but we have a stored token → validate it
             try {
@@ -106,7 +126,7 @@ function App() {
         } else if (event === 'TOKEN_REFRESHED' && session?.access_token) {
           // Silently update the token without re-fetching the profile
           if (store.user) {
-            store.setAuth(store.user, session.access_token);
+            store.setAuth(store.user, session.access_token, store.needsOnboarding);
           }
 
         } else if (event === 'SIGNED_OUT') {

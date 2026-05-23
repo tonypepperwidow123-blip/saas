@@ -115,7 +115,7 @@ const icons = {
 };
 
 export default function DashboardLayout() {
-  const { user, role, logout, isAuthenticated } = useAuthStore();
+  const { user, role, logout, isAuthenticated, needsOnboarding } = useAuthStore();
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const location = useLocation();
   const navigate = useNavigate();
@@ -124,6 +124,11 @@ export default function DashboardLayout() {
   // Global Auth Guard
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Onboarding Guard: new Google OAuth users must complete role setup first
+  if (needsOnboarding) {
+    return <Navigate to="/select-role" replace />;
   }
 
   // Role-Based Route Guard

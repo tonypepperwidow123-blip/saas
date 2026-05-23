@@ -2,7 +2,11 @@ import { Outlet, Link, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/auth.store';
 
 export default function AuthLayout() {
-  const { isAuthenticated, role } = useAuthStore();
+  const { isAuthenticated, role, needsOnboarding } = useAuthStore();
+
+  if (isAuthenticated && needsOnboarding) {
+    return <Navigate to="/select-role" replace />;
+  }
 
   if (isAuthenticated && role) {
     return <Navigate to={`/${role}/dashboard`} replace />;

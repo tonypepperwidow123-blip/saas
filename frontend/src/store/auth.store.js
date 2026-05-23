@@ -8,13 +8,23 @@ export const useAuthStore = create(
       token: null,
       role: null,
       isAuthenticated: false,
+      needsOnboarding: false, // true for new Google OAuth users who haven't selected a role yet
 
-      setAuth: (user, token) => {
+      setAuth: (user, token, needsOnboarding = false) => {
         set({
           user,
           token,
           role: user?.role || 'customer',
           isAuthenticated: !!user,
+          needsOnboarding,
+        });
+      },
+
+      completeOnboarding: (updatedUser) => {
+        set({
+          user: updatedUser,
+          role: updatedUser?.role || 'customer',
+          needsOnboarding: false,
         });
       },
 
@@ -24,6 +34,7 @@ export const useAuthStore = create(
           token: null,
           role: null,
           isAuthenticated: false,
+          needsOnboarding: false,
         });
       },
     }),
