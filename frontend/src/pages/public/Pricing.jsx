@@ -1,60 +1,5 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const plans = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: '₹0',
-    period: '',
-    description: 'Perfect for getting started.',
-    features: [
-      'Upload up to 5 plugins',
-      'Unlimited plugin updates',
-      'Automated license generation',
-      'Secure ZIP file hosting',
-      'Developer analytics dashboard',
-    ],
-    cta: 'Start for Free',
-    ctaHref: '/register',
-    highlight: false,
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: '₹1,000',
-    period: '/ mo',
-    description: 'For growing plugin businesses.',
-    features: [
-      'Upload up to 10 plugins',
-      'Unlimited plugin updates',
-      'Automated license generation',
-      'Secure ZIP file hosting',
-      'Developer analytics dashboard',
-    ],
-    cta: 'Get Pro',
-    ctaHref: '/register',
-    highlight: true,
-    badge: 'Most Popular',
-  },
-  {
-    id: 'business',
-    name: 'Business',
-    price: '₹1,500',
-    period: '/ mo',
-    description: 'For advanced agencies and studios.',
-    features: [
-      'Upload up to 20 plugins',
-      'Unlimited plugin updates',
-      'Automated license generation',
-      'Secure ZIP file hosting',
-      'Developer analytics dashboard',
-      'Priority Support',
-    ],
-    cta: 'Get Business',
-    ctaHref: '/register',
-    highlight: false,
-  },
-];
 
 function CheckIcon() {
   return (
@@ -65,6 +10,64 @@ function CheckIcon() {
 }
 
 export default function Pricing() {
+  const [isYearly, setIsYearly] = useState(false);
+
+  const plans = [
+    {
+      id: 'free',
+      name: 'Free',
+      price: '₹0',
+      period: '',
+      description: 'Perfect for getting started.',
+      features: [
+        'Upload up to 5 plugins',
+        'Unlimited plugin updates',
+        'Automated license generation',
+        'Secure ZIP file hosting',
+        'Developer analytics dashboard',
+      ],
+      cta: 'Start for Free',
+      ctaHref: '/register',
+      highlight: false,
+    },
+    {
+      id: 'pro',
+      name: 'Pro',
+      price: isYearly ? '₹800' : '₹1,000',
+      period: '/ mo',
+      description: 'For growing plugin businesses.',
+      features: [
+        'Upload up to 10 plugins',
+        'Unlimited plugin updates',
+        'Automated license generation',
+        'Secure ZIP file hosting',
+        'Developer analytics dashboard',
+      ],
+      cta: 'Get Pro',
+      ctaHref: '/register',
+      highlight: true,
+      badge: 'Most Popular',
+    },
+    {
+      id: 'business',
+      name: 'Business',
+      price: isYearly ? '₹1,200' : '₹1,500',
+      period: '/ mo',
+      description: 'For advanced agencies and studios.',
+      features: [
+        'Upload up to 20 plugins',
+        'Unlimited plugin updates',
+        'Automated license generation',
+        'Secure ZIP file hosting',
+        'Developer analytics dashboard',
+        'Priority Support',
+      ],
+      cta: 'Get Business',
+      ctaHref: '/register',
+      highlight: false,
+    },
+  ];
+
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '64px 24px' }}>
 
@@ -90,9 +93,89 @@ export default function Pricing() {
         }}>
           Choose your plan
         </h1>
-        <p style={{ fontSize: '16px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', maxWidth: '440px', margin: '0 auto', lineHeight: '1.7' }}>
+        <p style={{ fontSize: '16px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', maxWidth: '440px', margin: '0 auto 32px', lineHeight: '1.7' }}>
           Choose the perfect plan to manage and distribute your WordPress plugins.
         </p>
+
+        {/* Animated Toggle Switch */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '12px',
+          background: 'rgba(255, 255, 255, 0.02)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '30px',
+          padding: '4px',
+          position: 'relative',
+        }}>
+          {/* Active pill background slide */}
+          <div style={{
+            position: 'absolute',
+            top: '4px',
+            bottom: '4px',
+            left: isYearly ? '50%' : '4px',
+            width: 'calc(50% - 4px)',
+            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+            borderRadius: '26px',
+            transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
+            zIndex: 0,
+            boxShadow: '0 2px 10px rgba(245,158,11,0.2)',
+          }} />
+
+          <button
+            onClick={() => setIsYearly(false)}
+            style={{
+              padding: '8px 22px',
+              borderRadius: '26px',
+              border: 'none',
+              background: 'transparent',
+              color: isYearly ? 'var(--text-secondary)' : '#000',
+              fontWeight: '700',
+              fontSize: '13px',
+              fontFamily: 'DM Sans, sans-serif',
+              cursor: 'pointer',
+              position: 'relative',
+              zIndex: 1,
+              transition: 'color 0.2s ease',
+            }}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setIsYearly(true)}
+            style={{
+              padding: '8px 22px',
+              borderRadius: '26px',
+              border: 'none',
+              background: 'transparent',
+              color: isYearly ? '#000' : 'var(--text-secondary)',
+              fontWeight: '700',
+              fontSize: '13px',
+              fontFamily: 'DM Sans, sans-serif',
+              cursor: 'pointer',
+              position: 'relative',
+              zIndex: 1,
+              transition: 'color 0.2s ease',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            Yearly
+            <span style={{
+              background: isYearly ? 'rgba(0,0,0,0.15)' : 'rgba(245,158,11,0.15)',
+              color: isYearly ? '#000' : '#f59e0b',
+              fontSize: '9px',
+              fontWeight: '800',
+              padding: '2px 6px',
+              borderRadius: '10px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}>
+              Save 20%
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Plans Grid */}
@@ -100,6 +183,7 @@ export default function Pricing() {
         {plans.map((plan, index) => (
           <div
             key={plan.id}
+            className={plan.highlight ? 'animate-pulse-glow' : ''}
             style={{
               borderRadius: '20px',
               border: plan.highlight ? '1px solid rgba(245,158,11,0.35)' : '1px solid rgba(255,255,255,0.055)',
@@ -114,6 +198,23 @@ export default function Pricing() {
               transform: plan.highlight ? 'scale(1.02)' : 'none',
               animation: `fade-in 0.5s ${index * 0.1}s ease forwards`,
               opacity: 0,
+              transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+            }}
+            onMouseEnter={e => {
+              if (plan.highlight) {
+                e.currentTarget.style.transform = 'scale(1.04) translateY(-4px)';
+              } else {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+              }
+            }}
+            onMouseLeave={e => {
+              if (plan.highlight) {
+                e.currentTarget.style.transform = 'scale(1.02)';
+              } else {
+                e.currentTarget.style.transform = 'none';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.055)';
+              }
             }}
           >
             {/* Most Popular badge */}
@@ -147,13 +248,18 @@ export default function Pricing() {
 
             {/* Price */}
             <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-              <span style={{
-                fontFamily: 'Syne, sans-serif',
-                fontWeight: '800',
-                fontSize: '40px',
-                letterSpacing: '-0.04em',
-                color: plan.highlight ? '#f59e0b' : 'var(--text-primary)',
-              }}>
+              <span 
+                key={isYearly ? 'yearly' : 'monthly'}
+                style={{
+                  fontFamily: 'Syne, sans-serif',
+                  fontWeight: '800',
+                  fontSize: '40px',
+                  letterSpacing: '-0.04em',
+                  color: plan.highlight ? '#f59e0b' : 'var(--text-primary)',
+                  animation: 'fade-in 0.3s ease-out forwards',
+                  display: 'inline-block',
+                }}
+              >
                 {plan.price}
               </span>
               {plan.period && (

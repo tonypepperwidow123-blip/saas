@@ -25,16 +25,19 @@ export default function PublicLayout() {
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)', display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Top Navigation ──────────────────────────────────────────── */}
-      <header style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        height: '64px',
-        background: scrolled ? 'rgba(6,6,8,0.92)' : 'rgba(6,6,8,0.7)',
-        backdropFilter: 'blur(24px)',
-        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
-        transition: 'all 0.3s ease',
-      }}>
+      <header 
+        className={scrolled ? 'header-laser' : ''}
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          height: '64px',
+          background: scrolled ? 'rgba(6,6,8,0.92)' : 'rgba(6,6,8,0.7)',
+          backdropFilter: 'blur(24px)',
+          borderBottom: scrolled ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
+          transition: 'all 0.3s ease',
+        }}
+      >
         <div style={{
           maxWidth: '1200px',
           margin: '0 auto',
@@ -71,9 +74,10 @@ export default function PublicLayout() {
                   style={{
                     padding: '6px 14px',
                     borderRadius: '8px',
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    fontFamily: "'Space Mono', 'DM Mono', monospace",
+                    letterSpacing: '0.05em',
                     textDecoration: 'none',
                     color: active ? 'var(--accent)' : 'var(--text-secondary)',
                     background: active ? 'var(--accent-dim)' : 'transparent',
