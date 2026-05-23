@@ -55,7 +55,15 @@ export const protect = async (req, res, next) => {
       throw new ForbiddenError('Account suspended');
     }
 
-    req.user = profile;
+    const isGoogle =
+      user?.app_metadata?.provider === 'google' ||
+      user?.identities?.some((i) => i.provider === 'google');
+    const needsOnboarding = isGoogle && !user?.user_metadata?.role_selected;
+
+    req.user = {
+      ...profile,
+      needsOnboarding: !!needsOnboarding,
+    };
     next();
   } catch (error) {
     if (error instanceof AuthenticationError || error instanceof ForbiddenError) {

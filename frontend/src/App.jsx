@@ -34,20 +34,6 @@ const onAuthOrRootPage = () => {
   return p === '/' || p === '/login' || p === '/register' || p === '/select-role';
 };
 
-/**
- * True only if the Supabase account was created < 2 minutes ago.
- * Used to detect a brand-new Google OAuth user who needs to pick a role.
- */
-const isNewAccount = (supabaseUser) => {
-  if (!supabaseUser?.created_at) return false;
-  const ageMs = Date.now() - new Date(supabaseUser.created_at).getTime();
-  return ageMs < 120_000; // 2 minutes
-};
-
-/**
- * Parse URL hash string like "#access_token=ey...&token_type=bearer&..."
- * Returns null if no access_token is found.
- */
 const extractTokenFromHash = () => {
   const hash = window.location.hash;
   if (!hash || !hash.includes('access_token')) return null;
@@ -67,7 +53,7 @@ function App() {
      * (which uses supabaseAdmin.auth.getUser — service-role key — so it works
      *  even when the Supabase client-side validation returns 401).
      */
-    const syncWithBackend = async (accessToken, supabaseUser = null) => {
+    const syncWithBackend = async (accessToken) => {
       try {
         useAuthStore.getState().setTokenOnly(accessToken);
 
@@ -76,11 +62,8 @@ function App() {
         if (res?.success && res.data?.user) {
           const user = res.data.user;
 
-          // New Google OAuth account (< 2 min old) → must pick developer | customer
-          const isGoogle =
-            supabaseUser?.app_metadata?.provider === 'google' ||
-            supabaseUser?.identities?.some((i) => i.provider === 'google');
-          const needsOnboarding = isGoogle && isNewAccount(supabaseUser);
+          // Onboarding status is determined entirely by the backend
+          const needsOnboarding = !!user.needsOnboarding;
 
           useAuthStore.getState().setAuth(user, accessToken, needsOnboarding);
 
@@ -117,15 +100,7 @@ function App() {
       const hashToken = extractTokenFromHash();
       if (hashToken) {
         console.log('[Auth] Detected #access_token in URL hash — syncing…');
-        // Try to get the full Supabase user object (may fail, that's OK)
-        let supabaseUser = null;
-        try {
-          const { data } = await supabase.auth.getUser(hashToken);
-          supabaseUser = data?.user ?? null;
-        } catch (_) {
-          // Ignore — backend will validate
-        }
-        await syncWithBackend(hashToken, supabaseUser);
+        await syncWithBackend(hashToken);
         return;
       }
 
@@ -133,7 +108,7 @@ function App() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.access_token && session.access_token !== store.token) {
-          await syncWithBackend(session.access_token, session.user);
+          await syncWithBackend(session.access_token);
           return;
         }
       } catch (err) {
@@ -169,7 +144,7 @@ function App() {
         if (session?.access_token) {
           const store = useAuthStore.getState();
           if (session.access_token !== store.token) {
-            await syncWithBackend(session.access_token, session.user);
+            await syncWithBackend(session.access_token);
           }
         }
       }

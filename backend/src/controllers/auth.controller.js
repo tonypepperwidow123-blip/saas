@@ -26,6 +26,7 @@ export const register = async (req, res) => {
         name,
         role,
         business_name: business_name || null,
+        role_selected: true,
       },
     });
 
@@ -169,6 +170,24 @@ export const setupRole = async (req, res) => {
     if (updateError || !updatedProfile) {
       console.error('setupRole: failed to update profile:', updateError);
       return error(res, 'Failed to save your role selection. Please try again.', 500);
+    }
+
+    // Also update auth.users metadata to permanently record role selection completion
+    try {
+      const { error: authUpdateError } = await supabaseAdmin.auth.admin.updateUserById(
+        userId,
+        {
+          user_metadata: {
+            role_selected: true,
+            role,
+          }
+        }
+      );
+      if (authUpdateError) {
+        console.error('setupRole: failed to update auth user metadata:', authUpdateError.message);
+      }
+    } catch (err) {
+      console.error('setupRole: exception during auth metadata update:', err);
     }
 
     return success(res, {
