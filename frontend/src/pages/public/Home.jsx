@@ -219,6 +219,19 @@ function InteractiveParticles() {
   );
 }
 
+const tickerTechs = [
+  { name: 'WordPress', icon: '🌐' },
+  { name: 'React.js', icon: '⚛️' },
+  { name: 'PHP Engine', icon: '🐘' },
+  { name: 'JavaScript', icon: '🟨' },
+  { name: 'GitHub Sync', icon: '🐙' },
+  { name: 'Vite.js', icon: '⚡' },
+  { name: 'Tailwind CSS', icon: '🎨' },
+  { name: 'npm packages', icon: '📦' },
+  { name: 'Supabase DB', icon: '⚡' },
+  { name: 'Secure Stripe', icon: '💳' },
+];
+
 const initialLogs = [
   { text: '$ pluginvault init --env=production', type: 'cmd' },
   { text: '[SYSTEM] Initializing WordPress credentials...', type: 'info' },
