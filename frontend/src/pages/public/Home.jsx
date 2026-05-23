@@ -438,6 +438,440 @@ function DeveloperInspector() {
   );
 }
 
+function InteractiveLicensingShowcase() {
+  const [activeKeys, setActiveKeys] = useState(1284);
+  const [validationsCount, setValidationsCount] = useState(42.5);
+  const [recentRequests, setRecentRequests] = useState([
+    { id: 1, domain: 'alpha-wp.org', type: 'OK', color: '#10b981' },
+    { id: 2, domain: 'sandbox-site.net', type: 'OK', color: '#10b981' },
+    { id: 3, domain: 'staging-client.co', type: 'OK', color: '#10b981' },
+  ]);
+  const [flashKey, setFlashKey] = useState(false);
+  const [flashVal, setFlashVal] = useState(false);
+
+  const domainPool = [
+    'mystore.io',
+    'test-install.org',
+    'dev-env.local',
+    'premium-shop.com',
+    'api-node.net',
+    'client-portal.co',
+    'my-wp-blog.com',
+    'cart-checkout.info',
+    'plugin-test.io'
+  ];
+
+  useEffect(() => {
+    let idCounter = 4;
+    const interval = setInterval(() => {
+      const randomDomain = domainPool[Math.floor(Math.random() * domainPool.length)];
+      const isRevoked = Math.random() < 0.15;
+      const newRequest = {
+        id: idCounter++,
+        domain: randomDomain,
+        type: isRevoked ? 'REVOKED' : 'OK',
+        color: isRevoked ? '#f43f5e' : '#10b981'
+      };
+
+      setRecentRequests(prev => {
+        const updated = [newRequest, ...prev];
+        if (updated.length > 3) updated.pop();
+        return updated;
+      });
+
+      if (!isRevoked) {
+        setActiveKeys(prev => prev + (Math.random() > 0.7 ? 1 : 0));
+        setFlashKey(true);
+        setTimeout(() => setFlashKey(false), 800);
+      }
+      
+      setValidationsCount(prev => parseFloat((prev + 0.1).toFixed(1)));
+      setFlashVal(true);
+      setTimeout(() => setFlashVal(false), 800);
+
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="showcase-panel" style={{ width: '100%', maxWidth: '460px', padding: '24px', position: 'relative', overflow: 'visible' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div style={{ textAlign: 'left' }}>
+          <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)', fontFamily: "'Space Mono', monospace" }}>[ ENGINE // 01 ]</span>
+          <h4 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '2px', fontFamily: 'Syne, sans-serif' }}>Licensing Dashboard</h4>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px rgba(16,185,129,0.8)', animation: 'glow-pulse 2s infinite' }} />
+          <span style={{
+            fontSize: '9px', fontWeight: '800', color: '#10b981', background: 'rgba(16,185,129,0.1)',
+            border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '2px 8px', height: 'max-content', fontFamily: "'Space Mono', monospace"
+          }}>
+            LIVE MONITOR
+          </span>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px', textAlign: 'left' }}>
+        <div style={{
+          background: 'rgba(255,255,255,0.015)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '12px',
+          borderRadius: '10px',
+          transition: 'all 0.4s ease',
+          boxShadow: flashKey ? '0 0 15px rgba(245, 158, 11, 0.15)' : 'none',
+          borderColor: flashKey ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255,255,255,0.04)'
+        }}>
+          <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: '600', fontFamily: "'Space Mono', monospace" }}>ACTIVE KEYS</span>
+          <p style={{
+            fontSize: '20px',
+            fontWeight: '800',
+            color: '#f59e0b',
+            marginTop: '2px',
+            fontFamily: 'Syne, sans-serif',
+            transform: flashKey ? 'scale(1.05)' : 'none',
+            transition: 'all 0.2s ease',
+          }}>{activeKeys}</p>
+          <div style={{ height: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', marginTop: '6px', overflow: 'hidden' }}>
+            <div className="progress-bar-shimmer" style={{ width: '65%', height: '100%' }} />
+          </div>
+        </div>
+        
+        <div style={{
+          background: 'rgba(255,255,255,0.015)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '12px',
+          borderRadius: '10px',
+          transition: 'all 0.4s ease',
+          boxShadow: flashVal ? '0 0 15px rgba(6, 182, 212, 0.15)' : 'none',
+          borderColor: flashVal ? 'rgba(6, 182, 212, 0.3)' : 'rgba(255,255,255,0.04)'
+        }}>
+          <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: '600', fontFamily: "'Space Mono', monospace" }}>VALIDATIONS</span>
+          <p style={{
+            fontSize: '20px',
+            fontWeight: '800',
+            color: '#06b6d4',
+            marginTop: '2px',
+            fontFamily: 'Syne, sans-serif',
+            transform: flashVal ? 'scale(1.05)' : 'none',
+            transition: 'all 0.2s ease',
+          }}>{validationsCount}K</p>
+          <div style={{ height: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', marginTop: '6px', overflow: 'hidden' }}>
+            <div className="progress-bar-shimmer-cyan" style={{ width: '80%', height: '100%' }} />
+          </div>
+        </div>
+      </div>
+
+      <div style={{ width: '100%', height: '90px', background: 'rgba(255,255,255,0.005)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '8px', marginBottom: '16px', position: 'relative', overflow: 'hidden' }}>
+        <svg viewBox="0 0 300 80" style={{ width: '100%', height: '100%' }}>
+          <defs>
+            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d="M 0 60 Q 50 30 100 50 T 200 20 T 300 10 L 300 80 L 0 80 Z" fill="url(#chartGrad)" />
+          <path d="M 0 60 Q 50 30 100 50 T 200 20 T 300 10" fill="none" stroke="#f59e0b" strokeWidth="1.5" />
+          
+          <circle cx="200" cy="20" r="4" fill="#f59e0b" style={{ filter: 'drop-shadow(0 0 4px #f59e0b)' }} />
+          <line x1="200" y1="5" x2="200" y2="75" stroke="rgba(245, 158, 11, 0.25)" strokeWidth="1" strokeDasharray="3 3" />
+        </svg>
+      </div>
+
+      <div className="showcase-panel" style={{
+        position: 'absolute', bottom: '-20px', right: '-20px', width: '210px', padding: '14px',
+        background: 'rgba(10,10,15,0.92)', border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: '0 12px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+        zIndex: 5,
+        transition: 'all 0.3s ease'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+          <span className="status-dot active" />
+          <span style={{ fontSize: '9px', fontWeight: '800', fontFamily: "'Space Mono', monospace", color: 'var(--text-primary)' }}>DOMAIN REQUESTS</span>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '9.5px', textAlign: 'left', fontFamily: 'monospace' }}>
+          {recentRequests.map((req) => (
+            <div key={req.id} style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', animation: 'fade-in 0.3s ease-out forwards' }}>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}>{req.domain}</span>
+              <span style={{ color: req.color, fontWeight: '700' }}>{req.type}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InteractiveDeployerShowcase() {
+  const [deployProgress, setDeployProgress] = useState(0);
+  const [deployState, setDeployState] = useState('PUSHING'); 
+  const [version, setVersion] = useState('v2.4.1');
+  const [upgradedCount, setUpgradedCount] = useState(1250);
+
+  const versionsList = ['v2.4.1', 'v2.4.2', 'v2.4.3', 'v2.5.0'];
+
+  useEffect(() => {
+    let timer;
+    if (deployState === 'PUSHING') {
+      timer = setInterval(() => {
+        setDeployProgress(prev => {
+          const next = prev + Math.floor(Math.random() * 4) + 2;
+          if (next >= 100) {
+            clearInterval(timer);
+            setDeployState('VERIFYING');
+            return 100;
+          }
+          setUpgradedCount(Math.floor(1250 + (next / 100) * 170));
+          return next;
+        });
+      }, 150);
+    } else if (deployState === 'VERIFYING') {
+      timer = setTimeout(() => {
+        setDeployState('COMPLETED');
+      }, 2000);
+    } else if (deployState === 'COMPLETED') {
+      timer = setTimeout(() => {
+        setDeployState('PUSHING');
+        setDeployProgress(0);
+        setUpgradedCount(1250);
+        setVersion(prev => {
+          const currIdx = versionsList.indexOf(prev);
+          return versionsList[(currIdx + 1) % versionsList.length];
+        });
+      }, 3500);
+    }
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(timer);
+    };
+  }, [deployState]);
+
+  return (
+    <div className="showcase-panel" style={{ width: '100%', maxWidth: '460px', padding: '24px', position: 'relative', overflow: 'visible' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '20px' }}>📦</span>
+          <div style={{ textAlign: 'left' }}>
+            <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: "'Space Mono', monospace" }}>DEPLOY TARGET</span>
+            <h4 style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-primary)', fontFamily: 'Syne, sans-serif' }}>wp-seo-pro.zip</h4>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{
+            width: '6px', height: '6px', borderRadius: '50%',
+            background: deployState === 'PUSHING' ? '#f59e0b' : deployState === 'VERIFYING' ? '#06b6d4' : '#10b981',
+            boxShadow: deployState === 'PUSHING' ? '0 0 6px #f59e0b' : deployState === 'VERIFYING' ? '0 0 6px #06b6d4' : '0 0 6px #10b981',
+            animation: 'glow-pulse 2s infinite'
+          }} />
+          <span style={{
+            fontSize: '9px',
+            fontWeight: '800',
+            fontFamily: "'Space Mono', monospace",
+            color: deployState === 'PUSHING' ? '#f59e0b' : deployState === 'VERIFYING' ? '#06b6d4' : '#10b981',
+            textTransform: 'uppercase'
+          }}>
+            {version} {deployState === 'PUSHING' ? 'PUSHING' : deployState === 'VERIFYING' ? 'VERIFYING' : 'RELEASED'}
+          </span>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '18px', textAlign: 'left' }}>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px', fontFamily: "'Space Mono', monospace" }}>
+            <span>{deployState === 'PUSHING' ? 'Syncing to clients...' : deployState === 'VERIFYING' ? 'Running integrity check...' : '100% propagated successfully'}</span>
+            <span>{deployProgress}%</span>
+          </div>
+          <div style={{ height: '5px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+            <div
+              className={deployState === 'VERIFYING' ? "progress-bar-shimmer-cyan" : "progress-bar-shimmer"}
+              style={{
+                width: `${deployProgress}%`,
+                height: '100%',
+                transition: deployState === 'PUSHING' ? 'width 0.15s ease' : 'width 0.4s ease'
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', textAlign: 'left' }}>
+        <div style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', transition: 'all 0.3s ease' }}>
+          <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontWeight: '600', fontFamily: "'Space Mono', monospace" }}>PROPAGATED</span>
+          <p style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '2px', fontFamily: 'Syne, sans-serif' }}>
+            {deployState === 'COMPLETED' ? '1,420' : upgradedCount}
+          </p>
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px' }}>
+          <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontWeight: '600', fontFamily: "'Space Mono', monospace" }}>FAILED</span>
+          <p style={{ fontSize: '15px', fontWeight: '800', color: '#f43f5e', marginTop: '2px', fontFamily: 'Syne, sans-serif' }}>0</p>
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px' }}>
+          <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontWeight: '600', fontFamily: "'Space Mono', monospace" }}>SUCC. RATE</span>
+          <p style={{ fontSize: '15px', fontWeight: '800', color: '#10b981', marginTop: '2px', fontFamily: 'Syne, sans-serif' }}>100%</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InteractivePipelineShowcase() {
+  const [pipelineState, setPipelineState] = useState(0); 
+  const [activePlugin, setActivePlugin] = useState('wp-seo-pro.zip');
+
+  const pluginsPool = ['wp-seo-pro.zip', 'woo-cart-booster.zip', 'elementor-ext.zip'];
+
+  useEffect(() => {
+    let timer;
+    const runPipeline = () => {
+      timer = setInterval(() => {
+        setPipelineState(prev => {
+          if (prev >= 5) {
+            clearInterval(timer);
+            setTimeout(() => {
+              setPipelineState(0);
+              setActivePlugin(p => {
+                const nextIdx = (pluginsPool.indexOf(p) + 1) % pluginsPool.length;
+                return pluginsPool[nextIdx];
+              });
+            }, 4500);
+            return 5;
+          }
+          return prev + 1;
+        });
+      }, 2200);
+    };
+
+    runPipeline();
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [activePlugin]);
+
+  return (
+    <div className="showcase-panel" style={{ width: '100%', maxWidth: '460px', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', marginBottom: '16px' }}>
+        <span style={{ fontSize: '9px', fontWeight: '700', fontFamily: "'Space Mono', monospace", color: 'var(--text-secondary)' }}>
+          WP-Developer agentic pipeline
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#06b6d4', animation: 'glow-pulse 1.5s infinite' }} />
+          <span style={{ fontSize: '8px', fontWeight: '700', color: 'var(--accent2)', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>
+            AGENT ACTIVE
+          </span>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left', fontSize: '11px', fontFamily: 'monospace' }}>
+        
+        <div style={{
+          background: pipelineState >= 1 ? 'rgba(255, 255, 255, 0.015)' : 'rgba(255, 255, 255, 0.002)',
+          border: '1px solid',
+          borderColor: pipelineState >= 1 ? 'rgba(6, 182, 212, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+          padding: '10px',
+          borderRadius: '8px',
+          opacity: pipelineState >= 0 ? 1 : 0.25,
+          transition: 'all 0.4s ease',
+          transform: pipelineState === 1 ? 'translateY(-2px)' : 'none',
+          boxShadow: pipelineState === 1 ? '0 4px 12px rgba(6, 182, 212, 0.08)' : 'none'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+            <span style={{ color: '#06b6d4', fontWeight: '700' }}>[AGENT]</span>
+            <span style={{
+              color: pipelineState >= 1 ? '#10b981' : '#f59e0b',
+              fontWeight: '700',
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '9px'
+            }}>
+              {pipelineState >= 1 ? 'DISPATCHED' : 'INITIALIZING'}
+            </span>
+          </div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '10px' }}>
+            Bound file {activePlugin} to verification pipeline...
+          </span>
+        </div>
+
+        <div style={{
+          background: pipelineState >= 3 ? 'rgba(255, 255, 255, 0.015)' : pipelineState === 2 ? 'rgba(245, 158, 11, 0.03)' : 'rgba(255, 255, 255, 0.002)',
+          border: '1px solid',
+          borderColor: pipelineState >= 3 ? 'rgba(16, 185, 129, 0.15)' : pipelineState === 2 ? 'rgba(245, 158, 11, 0.25)' : 'rgba(255, 255, 255, 0.02)',
+          padding: '10px',
+          borderRadius: '8px',
+          opacity: pipelineState >= 2 ? 1 : 0.25,
+          transition: 'all 0.4s ease',
+          transform: pipelineState === 2 ? 'translateY(-2px)' : 'none',
+          boxShadow: pipelineState === 2 ? '0 4px 12px rgba(245, 158, 11, 0.08)' : 'none'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+            <span style={{ color: '#f59e0b', fontWeight: '700' }}>[AUDITOR]</span>
+            <span style={{
+              color: pipelineState >= 3 ? '#10b981' : '#f59e0b',
+              fontWeight: '700',
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '9px'
+            }}>
+              {pipelineState >= 3 ? 'PASSED' : pipelineState === 2 ? 'SCANNING' : 'QUEUED'}
+            </span>
+          </div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '10px' }}>
+            {pipelineState >= 3 ? 'Vulnerability scan completed. 0 issues flagged.' : pipelineState === 2 ? 'Analyzing classes, dependencies & PHP code AST...' : 'Awaiting code audit...'}
+          </span>
+        </div>
+
+        <div style={{
+          background: pipelineState >= 5 ? 'rgba(255, 255, 255, 0.015)' : pipelineState === 4 ? 'rgba(6, 182, 212, 0.03)' : 'rgba(255, 255, 255, 0.002)',
+          border: '1px solid',
+          borderColor: pipelineState >= 5 ? 'rgba(16, 185, 129, 0.15)' : pipelineState === 4 ? 'rgba(6, 182, 212, 0.25)' : 'rgba(255, 255, 255, 0.02)',
+          padding: '10px',
+          borderRadius: '8px',
+          opacity: pipelineState >= 4 ? 1 : 0.25,
+          transition: 'all 0.4s ease',
+          transform: pipelineState === 4 ? 'translateY(-2px)' : 'none',
+          boxShadow: pipelineState === 4 ? '0 4px 12px rgba(6, 182, 212, 0.08)' : 'none'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+            <span style={{ color: '#06b6d4', fontWeight: '700' }}>[VAULT-PUSH]</span>
+            <span style={{
+              color: pipelineState >= 5 ? '#10b981' : '#06b6d4',
+              fontWeight: '700',
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '9px'
+            }}>
+              {pipelineState >= 5 ? 'COMPLETED' : pipelineState === 4 ? 'SYNCING' : 'QUEUED'}
+            </span>
+          </div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '10px' }}>
+            {pipelineState >= 5 ? 'Release live on production vaults.' : pipelineState === 4 ? 'Propagating cryptographically signed zip globally...' : 'Awaiting distribution push...'}
+          </span>
+        </div>
+
+        <div style={{
+          maxHeight: pipelineState >= 5 ? '100px' : '0px',
+          opacity: pipelineState >= 5 ? 1 : 0,
+          overflow: 'hidden',
+          transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%)',
+          border: pipelineState >= 5 ? '1px solid rgba(245, 158, 11, 0.2)' : 'none',
+          padding: pipelineState >= 5 ? '10px' : '0px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 15px rgba(245, 158, 11, 0.1)',
+          marginTop: '6px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '16px' }}>💰</span>
+            <div style={{ textAlign: 'left' }}>
+              <span style={{ fontSize: '7.5px', color: '#f59e0b', fontFamily: "'Space Mono', monospace", fontWeight: '700' }}>REVENUE GAINED</span>
+              <p style={{ fontSize: '11px', color: '#10b981', fontWeight: '800', margin: 0 }}>Validated node client transaction: +$49.00</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const handleCardMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -882,6 +1316,144 @@ export default function Home() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SHOWCASE SECTION 1: LICENSING ──────────────────────────────── */}
+      <section style={{ padding: '80px 24px', borderTop: '1px solid rgba(255,255,255,0.055)', position: 'relative' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '64px', alignItems: 'center' }}>
+            
+            {/* Left Column: Copy */}
+            <div style={{ textAlign: 'left' }}>
+              <div style={{
+                width: '36px', height: '36px', borderRadius: '10px',
+                background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '18px', marginBottom: '20px'
+              }}>
+                🔑
+              </div>
+              <h2 style={{
+                fontFamily: 'Syne, sans-serif', fontWeight: '800',
+                fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: '1.15',
+                letterSpacing: '-0.04em', color: 'var(--text-primary)', marginBottom: '16px'
+              }}>
+                Scale with automated license tracking and domain restrictions
+              </h2>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.7', marginBottom: '32px' }}>
+                Generate cryptographic license keys, bind them to customer domains, and verify active site limits dynamically on all WooCommerce integrations.
+              </p>
+              <Link to="/register" style={{
+                fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700',
+                color: 'var(--text-muted)', textDecoration: 'none', letterSpacing: '0.06em',
+                textTransform: 'uppercase'
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+              >
+                Learn How to License
+              </Link>
+            </div>
+
+            {/* Right Column: Interactive Mockup */}
+            <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+              <InteractiveLicensingShowcase />
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── SHOWCASE SECTION 2: AUTO-UPDATES ───────────────────────────── */}
+      <section style={{ padding: '80px 24px', borderTop: '1px solid rgba(255,255,255,0.055)', position: 'relative' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '64px', alignItems: 'center' }}>
+            
+            {/* Left Column: Interactive Mockup */}
+            <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+              <InteractiveDeployerShowcase />
+            </div>
+
+            {/* Right Column: Copy */}
+            <div style={{ textAlign: 'left' }}>
+              <div style={{
+                width: '36px', height: '36px', borderRadius: '10px',
+                background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '18px', marginBottom: '20px'
+              }}>
+                ⚡
+              </div>
+              <h2 style={{
+                fontFamily: 'Syne, sans-serif', fontWeight: '800',
+                fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: '1.15',
+                letterSpacing: '-0.04em', color: 'var(--text-primary)', marginBottom: '16px'
+              }}>
+                Push automated updates straight to WordPress dashboards
+              </h2>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.7', marginBottom: '32px' }}>
+                No manual ZIP uploads required. Once you push a release package, PluginVault handles secure delivery and triggers automated update prompts seamlessly on customer sites.
+              </p>
+              <Link to="/register" style={{
+                fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700',
+                color: 'var(--text-muted)', textDecoration: 'none', letterSpacing: '0.06em',
+                textTransform: 'uppercase'
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+              >
+                Learn How to Deploy
+              </Link>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── SHOWCASE SECTION 3: DEVELOPER ANALYTICS ────────────────────── */}
+      <section style={{ padding: '80px 24px', borderTop: '1px solid rgba(255,255,255,0.055)', position: 'relative' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '64px', alignItems: 'center' }}>
+            
+            {/* Left Column: Copy */}
+            <div style={{ textAlign: 'left' }}>
+              <div style={{
+                width: '36px', height: '36px', borderRadius: '10px',
+                background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '18px', marginBottom: '20px'
+              }}>
+                📊
+              </div>
+              <h2 style={{
+                fontFamily: 'Syne, sans-serif', fontWeight: '800',
+                fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: '1.15',
+                letterSpacing: '-0.04em', color: 'var(--text-primary)', marginBottom: '16px'
+              }}>
+                Manage plugins, approvals, and daily revenues with ease
+              </h2>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.7', marginBottom: '32px' }}>
+                Submit plugins to the admin review pipeline, monitor approval states, and review complete downloads, activations, and earnings records.
+              </p>
+              <Link to="/register" style={{
+                fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700',
+                color: 'var(--text-muted)', textDecoration: 'none', letterSpacing: '0.06em',
+                textTransform: 'uppercase'
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+              >
+                Learn How to Build
+              </Link>
+            </div>
+
+            {/* Right Column: Interactive Mockup */}
+            <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+              <InteractivePipelineShowcase />
+            </div>
+
           </div>
         </div>
       </section>
